@@ -10,7 +10,9 @@
     ],
     "homepage": "https://github.com/cedtanghe/elixir-foundation",
     "require": {
-        "php": ">=5.4"
+        "php": ">=5.4",
+        "elixir/elixir-dispatcher": "~1.0",
+        "elixir/elixir-http": "~1.0"
     },
     "require-dev": {
         "phpunit/PHPUnit": "~4.0"
