@@ -1,0 +1,30 @@
+{
+    "name": "elixir/elixir-foundation",
+    "description": "Component Foundation, HTTP kernel for elixir application",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "elixir",
+        "application",
+        "middelware",
+        "httpkernel"
+    ],
+    "homepage": "https://github.com/cedtanghe/elixir-foundation",
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "phpunit/PHPUnit": "~4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Elixir\\Foundation\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Elixir\\Test\\Foundation\\": "tests/"
+        }
+    },
+    "suggest": {
+    }
+}
