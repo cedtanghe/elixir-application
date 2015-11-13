@@ -9,6 +9,16 @@
         "httpkernel"
     ],
     "homepage": "https://github.com/cedtanghe/elixir-foundation",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-dispatcher"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-http"
+        }
+    ],
     "require": {
         "php": ">=5.4",
         "elixir/elixir-dispatcher": "~1.0",
