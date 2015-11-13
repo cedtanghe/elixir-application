@@ -22,7 +22,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "elixir/elixir-dispatcher": "~1.0",
+        "cedtanghe/elixir-dispatcher": "~1.0",
         "elixir/elixir-http": "~1.0"
     },
     "require-dev": {
