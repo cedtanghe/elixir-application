@@ -85,19 +85,10 @@ class Application implements ApplicationInterface, DispatcherInterface
         $this->dispatch(new ApplicationEvent(ApplicationEvent::HANDLE, ['request' => $request]));
         
         $pipeline = new Pipeline($this->middlewares);
-        $response = $pipeline->run($request);
+        $response = $pipeline->process($request);
         
-        return $response;
-    }
-    
-    /**
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function finalHandler(ServerRequestInterface $request, ResponseInterface $response = null)
-    {
-        // Todo
+        // Todo parse response.
+        
         return $response;
     }
     
