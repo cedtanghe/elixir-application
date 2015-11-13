@@ -28,6 +28,11 @@ class Application implements ApplicationInterface, DispatcherInterface
     protected $middlewares = [];
     
     /**
+     * @var array
+     */
+    protected $packages = [];
+    
+    /**
      * @var ContainerInterface 
      */
     protected $container;
@@ -50,6 +55,14 @@ class Application implements ApplicationInterface, DispatcherInterface
     }
     
     /**
+     * return boolean
+     */
+    public function hasMiddleware(MiddlewareInterface $middleware)
+    {
+        return in_array($middleware, $this->middlewares, true);
+    }
+    
+    /**
      * {@inheritdoc}
      */
     public function pipe(MiddlewareInterface $middleware)
@@ -64,6 +77,22 @@ class Application implements ApplicationInterface, DispatcherInterface
     {
         return $this->middlewares;
     }
+    
+    /**
+     * return boolean
+     */
+    public function hasPackage($name)
+    {
+        foreach ($this->packages as $package)
+        {
+            if ($package->getName())
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * {@inheritdoc}
@@ -73,12 +102,26 @@ class Application implements ApplicationInterface, DispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getPackage($name);
+    public function getPackage($name)
+    {
+        foreach ($this->packages as $package)
+        {
+            if ($package->getName())
+            {
+                return $package;
+            }
+        }
+        
+        return null;
+    }
     
     /**
      * {@inheritdoc}
      */
-    public function getPackages();
+    public function getPackages()
+    {
+        return $this->packages;
+    }
     
     /**
      * {@inheritdoc}
