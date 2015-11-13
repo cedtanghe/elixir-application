@@ -17,8 +17,7 @@ class PipelineTest extends PHPUnit_Framework_TestCase
                 new CreateResponseMiddleware(),
                 new WriteResponseMiddleware(),
                 new PipelineMiddleware(new Pipeline([
-                        new WriteResponseMiddleware(),
-
+                        new WriteResponseMiddleware()
                     ]
                 )),
                 new WriteResponseMiddleware()
@@ -28,6 +27,6 @@ class PipelineTest extends PHPUnit_Framework_TestCase
         $response = $pipeline->process(ServerRequestFactory::createFromGlobals());
         
         $this->assertInstanceOf('\Elixir\HTTP\Response', $response);
-        $this->assertEquals('Response created.Write.Write.Write.Finalized!', (string)$response->getBody());
+        $this->assertEquals('Response created->write->write->write->finalized!', (string)$response->getBody());
     }
 }

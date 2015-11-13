@@ -2,6 +2,7 @@
 
 namespace Elixir\Foundation;
 
+use Elixir\DI\ContainerInterface;
 use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\Dispatcher\DispatcherTrait;
 use Elixir\Foundation\ApplicationEvent;
@@ -10,6 +11,7 @@ use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\Foundation\Middleware\Pipeline;
 use Elixir\Foundation\Middleware\TerminableInterface;
 use Elixir\Foundation\Package\PackageInterface;
+use Elixir\HTTP\ResponseFactory;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
 
@@ -20,22 +22,48 @@ class Application implements ApplicationInterface, DispatcherInterface
 {
     use DispatcherTrait;
     
+    /**
+     * @var array
+     */
     protected $middlewares = [];
     
     /**
+     * @var ContainerInterface 
+     */
+    protected $container;
+    
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+        $this->container->instance('Elixir\Foundation\ApplicationInterface', $this, ['aliases' => 'application']);
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function getContainer();
+    public function getContainer()
+    {
+        return $this->container;
+    }
     
     /**
      * {@inheritdoc}
      */
-    public function pipe(MiddlewareInterface $middleware);
+    public function pipe(MiddlewareInterface $middleware)
+    {
+        $this->middlewares[] = $middleware;
+    }
     
     /**
      * {@inheritdoc}
      */
-    public function getMiddlewares();
+    public function getMiddlewares()
+    {
+        return $this->middlewares;
+    }
 
     /**
      * {@inheritdoc}
@@ -79,15 +107,37 @@ class Application implements ApplicationInterface, DispatcherInterface
     
     /**
      * {@inheritdoc}
+     * @throws \LogicException
      */
     public function handle(ServerRequestInterface $request)
     {
-        $this->dispatch(new ApplicationEvent(ApplicationEvent::HANDLE, ['request' => $request]));
+        if ($request->isMainRequest())
+        {
+            $this->container->instance('Elixir\HTTP\ServerRequestInterface', $request, ['aliases' => 'request']);
+        }
+        
+        $event = new ApplicationEvent(ApplicationEvent::REQUEST, ['request' => $request]);
+        $this->dispatch($event);
+        
+        $request = $event->getRequest();
         
         $pipeline = new Pipeline($this->middlewares);
         $response = $pipeline->process($request);
         
-        // Todo parse response.
+        if (is_string($response))
+        {
+            $response = ResponseFactory::createHTML($response, 200);
+        }
+        
+        $event = new ApplicationEvent(ApplicationEvent::RESPONSE, ['response' => $response]);
+        $this->dispatch($event);
+        
+        $response = $event->getResponse();
+        
+        if (null === $response)
+        {
+            throw new \LogicException('No response found.');
+        }
         
         return $response;
     }

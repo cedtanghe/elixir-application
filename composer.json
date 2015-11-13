@@ -18,12 +18,17 @@
         },
         {
             "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-di"
+        },
+        {
+            "type": "vcs",
             "url": "https://github.com/cedtanghe/elixir-http"
         }
     ],
     "require": {
         "php": ">=5.4",
         "elixir/elixir-dispatcher": "*",
+        "elixir/elixir-di": "*",
         "elixir/elixir-http": "*"
     },
     "require-dev": {

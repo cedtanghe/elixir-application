@@ -6,9 +6,12 @@ use Elixir\Foundation\Middleware\MiddlewareInterface;
 
 class WriteResponseMiddleware implements MiddlewareInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public function __invoke($request, $response, callable $next) 
     {
-        $response->getBody()->write('Write.');
+        $response->getBody()->write('->write');
         return $next($request, $response);
     }
 }

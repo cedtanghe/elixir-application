@@ -31,7 +31,12 @@ class ApplicationEvent extends Event
     /**
      * @var string
      */
-    const HANDLE = 'handle';
+    const REQUEST = 'request';
+    
+    /**
+     * @var string
+     */
+    const RESPONSE = 'response';
     
     /**
      * @var string
@@ -104,10 +109,26 @@ class ApplicationEvent extends Event
     }
     
     /**
+     * @param ServerRequestInterface $request
+     */
+    public function setRequest(ServerRequestInterface $request)
+    {
+        $this->request = $request;
+    }
+    
+    /**
      * @return ResponseInterface
      */
     public function getResponse()
     {
         return $this->response;
+    }
+    
+    /**
+     * @param ResponseInterface $response
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
     }
 }
