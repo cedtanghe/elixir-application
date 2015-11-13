@@ -15,20 +15,21 @@ class Pipeline implements MiddlewareInterface
      * @var array 
      */
     protected $middleware;
-    
-    /**
-     * @var callable
-     */
-    protected $done;
 
     /**
      * @param array $middlewares
-     * @param \Elixir\HTTP\callable $done
      */
-    public function __construct(array $middlewares, callable $done)
+    public function __construct(array $middlewares)
     {
         $this->middleware = $middlewares;
-        $this->done = $done;
+    }
+    
+    /**
+     * @ignore
+     */
+    public function run(ServerRequestInterface $request, ResponseInterface $response = null)
+    {
+        return $this->__invoke($request, $response, $this);
     }
     
     /**
@@ -38,11 +39,10 @@ class Pipeline implements MiddlewareInterface
     {
         if (count($this->middleware) === 0)
         {
-            $done = $this->done;
-            return $done($request, $response, $next);
+            return $next ? $next($request, $response) : $response;
         }
         
         $middleware = array_shift($this->middleware);
-        return $middleware->handle($request, $response, $this);
+        return $middleware->handle($request, $response, count($this->middleware) > 0 ? $next : null);
     }
 }

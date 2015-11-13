@@ -14,6 +14,7 @@ interface MiddlewareInterface
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param callable $next
+     * @return null|ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response = null, callable $next = null);
 }

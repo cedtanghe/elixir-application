@@ -84,8 +84,8 @@ class Application implements ApplicationInterface, DispatcherInterface
     {
         $this->dispatch(new ApplicationEvent(ApplicationEvent::HANDLE, ['request' => $request]));
         
-        $pipeline = new Pipeline(array_splice($this->middlewares, 0), [$this, 'finalHandler']);
-        $response = $pipeline->launch($request);
+        $pipeline = new Pipeline($this->middlewares);
+        $response = $pipeline->run($request);
         
         return $response;
     }
