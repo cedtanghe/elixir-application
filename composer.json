@@ -2,6 +2,7 @@
     "name": "elixir/elixir-foundation",
     "description": "Component Foundation, HTTP kernel for elixir application",
     "version": "1.0.0",
+    "minimum-stability": "dev",
     "license": "BSD-3-Clause",
     "keywords": [
         "elixir",
@@ -22,8 +23,8 @@
     ],
     "require": {
         "php": ">=5.4",
-        "cedtanghe/elixir-dispatcher": "~1.0",
-        "elixir/elixir-http": "~1.0"
+        "elixir/elixir-dispatcher": "*",
+        "elixir/elixir-http": "*"
     },
     "require-dev": {
         "phpunit/PHPUnit": "~4.0"
