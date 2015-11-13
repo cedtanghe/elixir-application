@@ -43,6 +43,6 @@ class Pipeline implements MiddlewareInterface
         }
         
         $middleware = array_shift($this->middleware);
-        return $middleware->handle($request, $response, count($this->middleware) > 0 ? $next : null);
+        return $middleware($request, $response, count($this->middleware) > 0 ? $next : null);
     }
 }
