@@ -24,6 +24,14 @@ class Pipeline
     }
     
     /**
+     * @return array
+     */
+    public function getMiddlewares()
+    {
+        return $this->middlewares;
+    }
+
+    /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface

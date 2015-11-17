@@ -4,11 +4,14 @@ namespace Elixir\Foundation\Middleware;
 
 use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\Foundation\Middleware\Pipeline;
+use Elixir\Foundation\Middleware\TerminableInterface;
+use Elixir\HTTP\ResponseInterface;
+use Elixir\HTTP\ServerRequestInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-class PipelineMiddleware implements MiddlewareInterface
+class PipelineMiddleware implements MiddlewareInterface, TerminableInterface
 {
     /**
      * @var Pipeline 
@@ -30,5 +33,21 @@ class PipelineMiddleware implements MiddlewareInterface
     {
         $response = $this->pipeline->process($request, $response);
         return $next($request, $response);
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function terminate(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $middlewares = array_reverse($this->pipeline->getMiddlewares());
+        
+        foreach ($middlewares as $middleware)
+        {
+            if ($middleware instanceof TerminableInterface)
+            {
+                $middleware->terminate($request, $response);
+            }
+        }
     }
 }

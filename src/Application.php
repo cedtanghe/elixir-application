@@ -3,10 +3,10 @@
 namespace Elixir\Foundation;
 
 use Elixir\DI\ContainerInterface;
-use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\Dispatcher\DispatcherTrait;
 use Elixir\Foundation\ApplicationEvent;
 use Elixir\Foundation\ApplicationInterface;
+use Elixir\Foundation\CacheableInterface;
 use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\Foundation\Middleware\Pipeline;
 use Elixir\Foundation\Middleware\TerminableInterface;
@@ -18,7 +18,7 @@ use Elixir\HTTP\ServerRequestInterface;
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-class Application implements ApplicationInterface, DispatcherInterface
+class Application implements ApplicationInterface, CacheableInterface
 {
     use DispatcherTrait;
     
@@ -38,6 +38,41 @@ class Application implements ApplicationInterface, DispatcherInterface
     protected $container;
     
     /**
+     * @var array 
+     */
+    protected $hierarchy = [];
+    
+    /**
+     * @var array 
+     */
+    protected $classesLoaded = [];
+    
+    /**
+     * @var array 
+     */
+    protected  $filesLoaded = [];
+
+    /**
+     * @var array|\ArrayAccess
+     */
+    protected $cache;
+    
+    /**
+     * @var string|numeric|null
+     */
+    protected $cacheVersion = null;
+    
+    /**
+     * @var string 
+     */
+    protected $cacheKey;
+    
+    /**
+     * @var boolean 
+     */
+    protected $booted = false;
+    
+    /**
      * @param ContainerInterface $container
      */
     public function __construct(ContainerInterface $container)
@@ -52,6 +87,65 @@ class Application implements ApplicationInterface, DispatcherInterface
     public function getContainer()
     {
         return $this->container;
+    }
+    
+    /**
+     * @return array|\ArrayAccess
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
+    
+    /**
+     * @return string|numeric|null
+     */
+    public function getCacheVersion()
+    {
+        return $this->cacheVersion;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getCacheKey()
+    {
+        return $this->cacheKey;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function loadFromCache($cache, $version = null, $key = self::DEFAULT_CACHE_KEY)
+    {
+        $this->cache = $cache;
+        $this->cacheVersion = $version;
+        $this->cacheKey = $key;
+        
+        $data = isset($this->cache[$this->cacheKey]) ? $this->cache[$this->cacheKey]: [];
+        $version = isset($data['version']) ? $data['version'] : null;
+        
+        if (null === $this->cacheVersion || null === $version || $version === $this->cacheVersion)
+        {
+            if (null !== $version)
+            {
+                $this->cacheVersion = $version;
+            }
+            
+            $this->classesLoaded = array_merge(
+                isset($data['classes']) ? $data['classes'] : [],
+                $this->classesLoaded
+            );
+            
+            $this->filesLoaded = array_merge(
+                isset($data['files']) ? $data['files'] : [],
+                $this->filesLoaded
+            );
+            
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -83,36 +177,30 @@ class Application implements ApplicationInterface, DispatcherInterface
      */
     public function hasPackage($name)
     {
-        foreach ($this->packages as $package)
-        {
-            if ($package->getName())
-            {
-                return true;
-            }
-        }
-        
-        return false;
+        return isset($this->packages[$name]);
     }
 
     /**
      * {@inheritdoc}
+     * @throws \LogicException
      */
-    public function register(PackageInterface $package);
+    public function register(PackageInterface $package)
+    {
+        if ($this->booted)
+        {
+            throw new \LogicException('You can not add more packages after booted the application.');
+        }
+        
+        $this->packages[$package->getName()] = $package;
+        $package->register($this);
+    }
     
     /**
      * {@inheritdoc}
      */
     public function getPackage($name)
     {
-        foreach ($this->packages as $package)
-        {
-            if ($package->getName())
-            {
-                return $package;
-            }
-        }
-        
-        return null;
+        return isset($this->packages[$name]) ? $this->packages[$name] : null;
     }
     
     /**
@@ -125,28 +213,225 @@ class Application implements ApplicationInterface, DispatcherInterface
     
     /**
      * {@inheritdoc}
+     * @throws \LogicException
      */
-    public function getHierarchy($packageName);
+    public function getHierarchy($name, $root = false)
+    {
+        if(!$this->booted)
+        {
+            throw new \LogicException('The application must first be booted.');
+        }
+        
+        $package = $this->getPackage($name);
+        
+        if (null === $package)
+        {
+            return null;
+        }
+        
+        if ($root)
+        {
+            $root = $package;
+
+            while ($parent = $package->getParent())
+            {
+                $root = $this->getPackage($parent);
+            }
+
+            return $this->hierarchy[$root->getName()];
+        }
+        else
+        {
+            return $this->hierarchy[$package->getName()];
+        }
+    }
     
     /**
      * {@inheritdoc}
+     * @throws \LogicException
      */
-    public function locateClass($className);
+    public function locateClass($className)
+    {
+        if(!$this->booted)
+        {
+            throw new \LogicException('The application must first be booted.');
+        }
+        
+        if(isset($this->classesLoaded[$className]))
+        {
+            return $this->classesLoaded[$className];
+        }
+        
+        $search = [];
+        $find = function($data, $str) use ($className)
+        {
+            $classes = [str_replace($str, $data['package']->getNamespace(), $className)];
+            
+            foreach ($data['children'] as $d)
+            {
+                $classes += $find($d, $str);
+            }
+            
+            return $classes;
+        };
+        
+        if(false !== strpos($pClassName, '(@') && preg_match('/^\(@([^\)]+)\)/', $className, $matches))
+        {
+            $hierarchy = $this->getHierarchy($matches[1], false);
+            
+            if (null !== $hierarchy)
+            {
+                $search += $find($hierarchy, $matches[0]);
+            }
+        }
+        else
+        {
+            $search = [$className];
+        }
+        
+        $search = array_reverse($search);
+        
+        foreach($search as $class)
+        {
+            if(class_exists($class))
+            {
+                $this->classesLoaded[$className] = $class;
+                return $class;
+            }
+        }
+        
+        return null;
+    }
 
     /**
      * {@inheritdoc}
+     * @throws \LogicException
      */
-    public function locateFile($filePath, $single = true);
+    public function locateFile($filePath, $single = true)
+    {
+        if(!$this->booted)
+        {
+            throw new \LogicException('The application must first be booted.');
+        }
+        
+        if(isset($this->filesLoaded[$filePath]))
+        {
+            $files = $this->filesLoaded[$filePath];
+            return $single ? $files[0] : $files;
+        }
+        
+        $search = [];
+        $find = function($data, $str, $path) use ($filePath)
+        {
+            $files = [str_replace($str, $path ? $data['package']->getPath() : $data['package']->getName(), $filePath)];
+            
+            foreach ($data['children'] as $d)
+            {
+                $files += $find($d, $str, $path);
+            }
+            
+            return $files;
+        };
+
+        if(false !== strpos($filePath, '(@') && preg_match('/\(@([^\)]+)\)/', $filePath, $matches))
+        {
+            $hierarchy = $this->getHierarchy($matches[1], false);
+            
+            if (null !== $hierarchy)
+            {
+                $search += $find($hierarchy, $matches[0], strpos($filePath, $matches[0]) === 0);
+            }
+        }
+        else
+        {
+            $search = [$filePath];
+        }
+
+        $search = array_reverse($search);
+        $files = [];
+
+        foreach($search as $file)
+        {
+            if(file_exists($file))
+            {
+                $files[] = $file;
+            }
+        }
+        
+        if(count($files) > 0)
+        {
+            $this->filesLoaded[$filePath] = $files;
+            return $single ? $files[0] : $files;
+        }
+        
+        return null;
+    }
     
     /**
      * {@inheritdoc}
      */
-    public function isBooted();
+    public function isBooted()
+    {
+        return $this->booted;
+    }
     
     /**
      * {@inheritdoc}
      */
-    public function boot();
+    public function boot()
+    {
+        if ($this->booted)
+        {
+            return;
+        }
+        
+        $map = function(PackageInterface $package)
+        {
+            $packages = [
+                'package' => $package,
+                'children' => []
+            ];
+            
+            foreach ($this->packages as $n => $p)
+            {
+                if ($p->getParent() === $package->getName())
+                {
+                    $packages['children'][$p->getName()] = $map($p);
+                }
+            }
+            
+            return $packages;
+        };
+        
+        // Check required and parent packages and create hierarchy
+        foreach ($this->packages as $name => $package)
+        {
+            $required = $package->getRequired();
+            
+            if (null !== $required)
+            {
+                foreach ((array)$required as $r)
+                {
+                    if (!$this->hasPackage($r))
+                    {
+                        throw new \LogicException(sprintf('The "%s" package requires the use of the "%s" package.', $name, $r));
+                    }
+                }
+            }
+            
+            $parent = $package->getParent();
+            
+            if (null !== $parent)
+            {
+                if (!$this->hasPackage($parent))
+                {
+                    throw new \LogicException(sprintf('The "%s" package extends the unregistered package "%s".', $name, $parent));
+                }
+            }
+            
+            $this->hierarchy[$name] = $map($package);
+        }
+    }
     
     /**
      * {@inheritdoc}
@@ -163,9 +448,10 @@ class Application implements ApplicationInterface, DispatcherInterface
         $this->dispatch($event);
         
         $request = $event->getRequest();
+        $response = $event->getResponse();
         
         $pipeline = new Pipeline($this->middlewares);
-        $response = $pipeline->process($request);
+        $response = $pipeline->process($request, $response);
         
         if (is_string($response))
         {
@@ -183,6 +469,39 @@ class Application implements ApplicationInterface, DispatcherInterface
         }
         
         return $response;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function exportToCache()
+    {
+        if (null !== $this->cache)
+        {
+            $this->cache[$this->cacheKey] = [
+                'classes' => $this->classesLoaded,
+                'files' => $this->filesLoaded,
+                'version' => $this->cacheVersion
+            ];
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function invalidateCache()
+    {
+        if (null !== $this->cache)
+        {
+            unset($this->cache[$this->cacheKey]);
+            return true;
+        }
+        
+        return false;
     }
     
     /**

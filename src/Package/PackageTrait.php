@@ -2,6 +2,10 @@
 
 namespace Elixir\Foundation\Package;
 
+use Elixir\DI\ContainerInterface;
+use Elixir\DI\ProviderInterface;
+use Elixir\Dispatcher\DispatcherInterface;
+use Elixir\Dispatcher\SubscriberInterface;
 use Elixir\Foundation\ApplicationInterface;
 
 /**
@@ -97,5 +101,21 @@ trait PackageTrait
     public function register(ApplicationInterface $application)
     {
         $this->application = $application;
+    }
+    
+    /**
+     * @see ContainerInterface::addProvider()
+     */
+    protected function provide(ProviderInterface $provider)
+    {
+        $this->application->getContainer()->addProvider($provider);
+    }
+    
+    /**
+     * @see DispatcherInterface::addSubscriber()
+     */
+    protected function subscribe(SubscriberInterface $subscriber)
+    {
+        $this->application->addSubscriber($subscriber);
     }
 }

@@ -3,12 +3,13 @@
 namespace Elixir\Foundation;
 
 use Elixir\DI\ContainerInterface;
+use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\Foundation\PackageInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface ApplicationInterface extends HTTPKernelInterface
+interface ApplicationInterface extends HTTPKernelInterface, DispatcherInterface
 {
     /**
      * @return ContainerInterface
@@ -32,10 +33,11 @@ interface ApplicationInterface extends HTTPKernelInterface
     public function getPackages();
     
     /**
-     * @param string $packageName
-     * @return array
+     * @param string $name
+     * @param boolean $root
+     * @return array|null
      */
-    public function getHierarchy($packageName);
+    public function getHierarchy($name, $root = false);
     
     /**
      * @param string $className

@@ -32,7 +32,7 @@ interface PackageInterface
     /**
      * @return string|array|null
      */
-    public function getRequiredPackages();
+    public function getRequired();
     
     /**
      * @param ApplicationInterface $application
