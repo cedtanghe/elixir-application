@@ -2,11 +2,13 @@
 
 namespace Elixir\Foundation;
 
+use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
 use Elixir\Dispatcher\DispatcherTrait;
 use Elixir\Foundation\ApplicationEvent;
 use Elixir\Foundation\ApplicationInterface;
 use Elixir\Foundation\CacheableInterface;
+use Elixir\Foundation\LocatorInterface;
 use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\Foundation\Middleware\Pipeline;
 use Elixir\Foundation\Middleware\TerminableInterface;
@@ -161,6 +163,16 @@ class Application implements ApplicationInterface, CacheableInterface
      */
     public function pipe(MiddlewareInterface $middleware)
     {
+        if ($middleware instanceof ContainerAwareInterface)
+        {
+            $middleware->setContainer($this->container);
+        }
+        
+        if ($middleware instanceof LocatorInterface)
+        {
+            $middleware->setLocator($this);
+        }
+        
         $this->middlewares[] = $middleware;
     }
     
@@ -191,8 +203,8 @@ class Application implements ApplicationInterface, CacheableInterface
             throw new \LogicException('You can not add more packages after booted the application.');
         }
         
-        $this->packages[$package->getName()] = $package;
         $package->register($this);
+        $this->packages[$package->getName()] = $package;
     }
     
     /**

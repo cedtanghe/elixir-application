@@ -4,12 +4,13 @@ namespace Elixir\Foundation;
 
 use Elixir\DI\ContainerInterface;
 use Elixir\Dispatcher\DispatcherInterface;
-use Elixir\Foundation\PackageInterface;
+use Elixir\Foundation\LocatorInterface;
+use Elixir\Foundation\Package\PackageInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface ApplicationInterface extends HTTPKernelInterface, DispatcherInterface
+interface ApplicationInterface extends HTTPKernelInterface, LocatorInterface, DispatcherInterface
 {
     /**
      * @return ContainerInterface
@@ -38,19 +39,6 @@ interface ApplicationInterface extends HTTPKernelInterface, DispatcherInterface
      * @return array|null
      */
     public function getHierarchy($name, $root = false);
-    
-    /**
-     * @param string $className
-     * @return string|null
-     */
-    public function locateClass($className);
-
-    /**
-     * @param string $filePath
-     * @param boolean $single
-     * @return string|array|null
-     */
-    public function locateFile($filePath, $single = true);
     
     /**
      * @return boolean
