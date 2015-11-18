@@ -36,6 +36,11 @@ class ApplicationEvent extends Event
     /**
      * @var string
      */
+    const EXCEPTION = 'exception';
+    
+    /**
+     * @var string
+     */
     const RESPONSE = 'response';
     
     /**
@@ -59,6 +64,11 @@ class ApplicationEvent extends Event
     protected $request;
     
     /**
+     * @var \Exception
+     */
+    protected $exception;
+    
+    /**
      * @var ResponseInterface
      */
     protected $response;
@@ -75,12 +85,14 @@ class ApplicationEvent extends Event
             'package' => null,
             'middleware' => null,
             'request' => null,
+            'exception' => null,
             'response' => null,
         ];
         
         $this->package = $params['package'];
         $this->middleware = $params['middleware'];
         $this->request = $params['request'];
+        $this->exception = $params['exception'];
         $this->response = $params['response'];
     }
 
@@ -106,6 +118,14 @@ class ApplicationEvent extends Event
     public function getRequest()
     {
         return $this->request;
+    }
+    
+    /**
+     * @return \Exception
+     */
+    public function getException()
+    {
+        return $this->exception;
     }
     
     /**

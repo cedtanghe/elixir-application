@@ -14,6 +14,10 @@
     "repositories": [
         {
             "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-stdlib"
+        },
+        {
+            "type": "vcs",
             "url": "https://github.com/cedtanghe/elixir-dispatcher"
         },
         {
@@ -27,6 +31,7 @@
     ],
     "require": {
         "php": ">=5.4",
+        "elixir/elixir-stdlib": "*",
         "elixir/elixir-dispatcher": "*",
         "elixir/elixir-di": "*",
         "elixir/elixir-http": "*"

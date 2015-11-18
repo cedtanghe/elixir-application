@@ -10,6 +10,7 @@ use Elixir\Foundation\Exception\NotFoundException;
 use Elixir\Foundation\LocatorAwareInterface;
 use Elixir\Foundation\LocatorInterface;
 use Elixir\Foundation\Middleware\MiddlewareInterface;
+use Elixir\Util\StringUtils;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
@@ -55,7 +56,19 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
      */
     public function __invoke($request, $response, callable $next) 
     {
+        $package = $request->getAttribute('_package', null);
         $controller = $request->getAttribute('_controller', null);
+        $action = $request->getAttribute('_action', null);
+        
+        if (null !== $package && null !== $controller && null !== $action)
+        {
+            if(false === strpos($package, '(@'))
+            {
+                $package = StringUtils::camelize($package);
+            }
+            
+            $controller = sprintf('%s\Controller\%s::%s', $package, StringUtils::camelize($controller), StringUtils::camelize($action));
+        }
         
         if (empty($controller))
         {
@@ -71,20 +84,13 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
                     throw new \LogicException(sprintf('Controller "%s" is not callable.', $controller));
                 }
 
-                $parts = explode('::', $controller);
-            }
-            else
-            {
-                $parts = $controller;
-            }
-            
-            if (is_string($parts[0]))
-            {
-                if (null !== $this->locator && false !== strpos($parts[0], '(@'))
+                $controller = explode('::', $controller);
+                
+                if (null !== $this->locator && false !== strpos($controller[0], '(@'))
                 {
-                    $parts[0] = $this->locator->locateClass($parts[0]);
+                    $controller[0] = $this->locator->locateClass($controller[0]);
 
-                    if(null === $parts[0])
+                    if(null === $controller[0])
                     {
                         throw new NotFoundException(sprintf('Controller "%s" was not detected.', $parts[0]));
                     }
@@ -94,16 +100,16 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
             }
             else
             {
-                $instance = $parts[0];
+                $instance = $controller[0];
             }
             
             if($instance instanceof RESTfulControllerInterface)
             {
-                $method = $instance->getRestFulMethodName($parts[1], $request);
+                $method = $instance->getRestFulMethodName($controller[1], $request);
             }
             else
             {
-                $method = $parts[1];
+                $method = $controller[1];
             }
             
             $controller = [$instance, $method];

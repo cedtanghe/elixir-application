@@ -80,7 +80,7 @@ class Application implements ApplicationInterface, CacheableInterface
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->container->instance('Elixir\Foundation\ApplicationInterface', $this, ['aliases' => 'application']);
+        $this->container->instance('Elixir\Foundation\ApplicationInterface', $this, ['aliases' => ['application', 'kernel']]);
     }
 
     /**
