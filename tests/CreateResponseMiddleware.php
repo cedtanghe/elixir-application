@@ -1,9 +1,9 @@
 <?php
 
-namespace Elixir\Test\Foundation;
+namespace Elixir\Test\Kernel;
 
-use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\HTTP\ResponseFactory;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
 
 class CreateResponseMiddleware implements MiddlewareInterface
 {

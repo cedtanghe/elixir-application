@@ -1,8 +1,8 @@
 <?php
 
-namespace Elixir\Foundation\Package;
+namespace Elixir\Kernel\Package;
 
-use Elixir\Foundation\ApplicationInterface;
+use Elixir\Kernel\ApplicationInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

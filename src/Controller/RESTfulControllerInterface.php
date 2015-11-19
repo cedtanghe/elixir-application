@@ -1,6 +1,6 @@
 <?php
 
-namespace Elixir\Foundation\Controller;
+namespace Elixir\Kernel\Controller;
 
 use Elixir\HTTP\ServerRequestInterface;
 

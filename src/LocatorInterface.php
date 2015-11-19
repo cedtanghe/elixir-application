@@ -1,6 +1,6 @@
 <?php
 
-namespace Elixir\Foundation;
+namespace Elixir\Kernel;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

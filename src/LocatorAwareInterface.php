@@ -1,8 +1,8 @@
 <?php
 
-namespace Elixir\Foundation;
+namespace Elixir\Kernel;
 
-use Elixir\Foundation\LocatorInterface;
+use Elixir\Kernel\LocatorInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

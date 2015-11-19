@@ -1,6 +1,6 @@
 <?php
 
-namespace Elixir\Foundation\Exception;
+namespace Elixir\Kernel\Exception;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

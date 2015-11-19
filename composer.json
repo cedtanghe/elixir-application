@@ -1,6 +1,6 @@
 {
-    "name": "elixir/elixir-foundation",
-    "description": "Component Foundation, HTTP kernel for elixir application",
+    "name": "elixir/elixir-kernel",
+    "description": "Component HTTP kernel for elixir application",
     "version": "1.0.0",
     "minimum-stability": "dev",
     "license": "BSD-3-Clause",
@@ -8,9 +8,10 @@
         "elixir",
         "application",
         "middelware",
+        "kernel",
         "httpkernel"
     ],
-    "homepage": "https://github.com/cedtanghe/elixir-foundation",
+    "homepage": "https://github.com/cedtanghe/elixir-kernel",
     "repositories": [
         {
             "type": "vcs",
@@ -41,12 +42,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Elixir\\Foundation\\": "src/"
+            "Elixir\\Kernel\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Elixir\\Test\\Foundation\\": "tests/"
+            "Elixir\\Test\\Kernel\\": "tests/"
         }
     },
     "suggest": {

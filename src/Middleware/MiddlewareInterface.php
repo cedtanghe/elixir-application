@@ -1,6 +1,6 @@
 <?php
 
-namespace Elixir\Foundation\Middleware;
+namespace Elixir\Kernel\Middleware;
 
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;

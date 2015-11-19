@@ -1,10 +1,10 @@
 <?php
 
-namespace Elixir\Foundation;
+namespace Elixir\Kernel;
 
-use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

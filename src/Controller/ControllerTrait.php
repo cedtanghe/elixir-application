@@ -1,10 +1,10 @@
 <?php
 
-namespace Elixir\Foundation\Controller;
+namespace Elixir\Kernel\Controller;
 
-use Elixir\Foundation\Exception\ErrorException;
-use Elixir\Foundation\Exception\ForbiddenException;
-use Elixir\Foundation\Exception\NotFoundException;
+use Elixir\Kernel\Exception\ErrorException;
+use Elixir\Kernel\Exception\ForbiddenException;
+use Elixir\Kernel\Exception\NotFoundException;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

@@ -1,8 +1,8 @@
 <?php
 
-namespace Elixir\Test\Foundation;
+namespace Elixir\Test\Kernel;
 
-use Elixir\Foundation\Middleware\MiddlewareInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
 
 class WriteResponseMiddleware implements MiddlewareInterface
 {

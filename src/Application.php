@@ -1,21 +1,21 @@
 <?php
 
-namespace Elixir\Foundation;
+namespace Elixir\Kernel;
 
 use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
 use Elixir\Dispatcher\DispatcherTrait;
-use Elixir\Foundation\ApplicationEvent;
-use Elixir\Foundation\ApplicationInterface;
-use Elixir\Foundation\CacheableInterface;
-use Elixir\Foundation\LocatorInterface;
-use Elixir\Foundation\Middleware\MiddlewareInterface;
-use Elixir\Foundation\Middleware\Pipeline;
-use Elixir\Foundation\Middleware\TerminableInterface;
-use Elixir\Foundation\Package\PackageInterface;
 use Elixir\HTTP\ResponseFactory;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
+use Elixir\Kernel\ApplicationEvent;
+use Elixir\Kernel\ApplicationInterface;
+use Elixir\Kernel\CacheableInterface;
+use Elixir\Kernel\LocatorInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
+use Elixir\Kernel\Middleware\Pipeline;
+use Elixir\Kernel\Middleware\TerminableInterface;
+use Elixir\Kernel\Package\PackageInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
@@ -80,7 +80,7 @@ class Application implements ApplicationInterface, CacheableInterface
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->container->instance('Elixir\Foundation\ApplicationInterface', $this, ['aliases' => ['application', 'kernel']]);
+        $this->container->instance('Elixir\Kernel\ApplicationInterface', $this, ['aliases' => ['application', 'kernel']]);
     }
 
     /**

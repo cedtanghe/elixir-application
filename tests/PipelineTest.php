@@ -1,12 +1,12 @@
 <?php
 
-namespace Elixir\Test\Foundation;
+namespace Elixir\Test\Kernel;
 
-use Elixir\Foundation\Middleware\Pipeline;
-use Elixir\Foundation\Middleware\PipelineMiddleware;
 use Elixir\HTTP\ServerRequestFactory;
-use Elixir\Test\Foundation\CreateResponseMiddleware;
-use Elixir\Test\Foundation\WriteResponseMiddleware;
+use Elixir\Kernel\Middleware\Pipeline;
+use Elixir\Kernel\Middleware\PipelineMiddleware;
+use Elixir\Test\Kernel\CreateResponseMiddleware;
+use Elixir\Test\Kernel\WriteResponseMiddleware;
 use PHPUnit_Framework_TestCase;
 
 class PipelineTest extends PHPUnit_Framework_TestCase

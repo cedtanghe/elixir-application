@@ -1,12 +1,12 @@
 <?php
 
-namespace Elixir\Foundation\Middleware;
+namespace Elixir\Kernel\Middleware;
 
-use Elixir\Foundation\Middleware\MiddlewareInterface;
-use Elixir\Foundation\Middleware\Pipeline;
-use Elixir\Foundation\Middleware\TerminableInterface;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
+use Elixir\Kernel\Middleware\Pipeline;
+use Elixir\Kernel\Middleware\TerminableInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

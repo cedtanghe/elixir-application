@@ -1,15 +1,15 @@
 <?php
 
-namespace Elixir\Foundation\Middleware;
+namespace Elixir\Kernel\Middleware;
 
 use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
 use Elixir\DI\ContainerResolvableInterface;
-use Elixir\Foundation\Controller\RESTfulControllerInterface;
-use Elixir\Foundation\Exception\NotFoundException;
-use Elixir\Foundation\LocatorAwareInterface;
-use Elixir\Foundation\LocatorInterface;
-use Elixir\Foundation\Middleware\MiddlewareInterface;
+use Elixir\Kernel\Controller\RESTfulControllerInterface;
+use Elixir\Kernel\Exception\NotFoundException;
+use Elixir\Kernel\LocatorAwareInterface;
+use Elixir\Kernel\LocatorInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Util\StringUtils;
 
 /**

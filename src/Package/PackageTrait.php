@@ -1,12 +1,12 @@
 <?php
 
-namespace Elixir\Foundation\Package;
+namespace Elixir\Kernel\Package;
 
 use Elixir\DI\ContainerInterface;
 use Elixir\DI\ProviderInterface;
 use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\Dispatcher\SubscriberInterface;
-use Elixir\Foundation\ApplicationInterface;
+use Elixir\Kernel\ApplicationInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

@@ -1,12 +1,12 @@
 <?php
 
-namespace Elixir\Foundation;
+namespace Elixir\Kernel;
 
 use Elixir\Dispatcher\Event;
-use Elixir\Foundation\Middleware\MiddlewareInterface;
-use Elixir\Foundation\Package\PackageInterface;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
+use Elixir\Kernel\Package\PackageInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

@@ -1,15 +1,15 @@
 <?php
 
-namespace Elixir\Foundation\Middleware;
+namespace Elixir\Kernel\Middleware;
 
 use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
-use Elixir\Foundation\ApplicationEvent;
-use Elixir\Foundation\ApplicationInterface;
-use Elixir\Foundation\HTTPKernelInterface;
-use Elixir\Foundation\Middleware\MiddlewareInterface;
 use Elixir\HTTP\ResponseFactory;
 use Elixir\HTTP\ResponseInterface;
+use Elixir\Kernel\ApplicationEvent;
+use Elixir\Kernel\ApplicationInterface;
+use Elixir\Kernel\HTTPKernelInterface;
+use Elixir\Kernel\Middleware\MiddlewareInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>

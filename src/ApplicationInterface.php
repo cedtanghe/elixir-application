@@ -1,11 +1,11 @@
 <?php
 
-namespace Elixir\Foundation;
+namespace Elixir\Kernel;
 
 use Elixir\DI\ContainerInterface;
 use Elixir\Dispatcher\DispatcherInterface;
-use Elixir\Foundation\LocatorInterface;
-use Elixir\Foundation\Package\PackageInterface;
+use Elixir\Kernel\LocatorInterface;
+use Elixir\Kernel\Package\PackageInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
