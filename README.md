@@ -1,1 +1,1 @@
-# elixir-foundation
+# elixir-kernel
