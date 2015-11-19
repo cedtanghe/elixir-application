@@ -29,13 +29,13 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
     
     /**
      * {@inheritdoc}
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function setContainer(ContainerInterface $container = null)
     {
         if (!$container instanceof ContainerResolvableInterface)
         {
-            throw new \LogicException('Container must implement the interface "\Elixir\DI\ContainerResolvableInterface".');
+            throw new LogicException('Container must implement the interface "\Elixir\DI\ContainerResolvableInterface".');
         }
         
         $this->container = $container;
@@ -52,22 +52,22 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
     /**
      * {@inheritdoc}
      * @throws NotFoundException
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function __invoke($request, $response, callable $next) 
     {
-        $package = $request->getAttribute('_package', null);
+        $module = $request->getAttribute('_module', null);
         $controller = $request->getAttribute('_controller', null);
         $action = $request->getAttribute('_action', null);
         
-        if (null !== $package && null !== $controller && null !== $action)
+        if (null !== $module && null !== $controller && null !== $action)
         {
-            if(false === strpos($package, '(@'))
+            if(false === strpos($module, '(@'))
             {
-                $package = StringUtils::camelize($package);
+                $module = StringUtils::camelize($module);
             }
             
-            $controller = sprintf('%s\Controller\%s::%s', $package, StringUtils::camelize($controller), StringUtils::camelize($action));
+            $controller = sprintf('%s\Controller\%s::%s', $module, StringUtils::camelize($controller), StringUtils::camelize($action));
         }
         
         if (empty($controller))
@@ -81,7 +81,7 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
             {
                 if (false === strpos($controller, '::'))
                 {
-                    throw new \LogicException(sprintf('Controller "%s" is not callable.', $controller));
+                    throw new LogicException(sprintf('Controller "%s" is not callable.', $controller));
                 }
 
                 $controller = explode('::', $controller);

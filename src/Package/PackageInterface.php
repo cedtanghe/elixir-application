@@ -1,13 +1,13 @@
 <?php
 
-namespace Elixir\Kernel\Package;
+namespace Elixir\Kernel\Module;
 
 use Elixir\Kernel\ApplicationInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface PackageInterface 
+interface ModuleInterface 
 {
     /**
      * @return string

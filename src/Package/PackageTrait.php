@@ -1,6 +1,6 @@
 <?php
 
-namespace Elixir\Kernel\Package;
+namespace Elixir\Kernel\Module;
 
 use Elixir\DI\ContainerInterface;
 use Elixir\DI\ProviderInterface;
@@ -11,7 +11,7 @@ use Elixir\Kernel\ApplicationInterface;
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-trait PackageTrait
+trait ModuleTrait
 {
     /**
      * @var ApplicationInterface

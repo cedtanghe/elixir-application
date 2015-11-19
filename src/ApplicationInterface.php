@@ -5,7 +5,7 @@ namespace Elixir\Kernel;
 use Elixir\DI\ContainerInterface;
 use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\Kernel\LocatorInterface;
-use Elixir\Kernel\Package\PackageInterface;
+use Elixir\Kernel\Module\ModuleInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
@@ -18,20 +18,20 @@ interface ApplicationInterface extends HTTPKernelInterface, LocatorInterface, Di
     public function getContainer();
 
     /**
-     * @param PackageInterface $package
+     * @param ModuleInterface $module
      */
-    public function register(PackageInterface $package);
+    public function register(ModuleInterface $module);
     
     /**
      * @param string $name
-     * @return PackageInterface|null
+     * @return ModuleInterface|null
      */
-    public function getPackage($name);
+    public function getModule($name);
 
     /**
      * @return array
      */
-    public function getPackages();
+    public function getModules();
     
     /**
      * @param string $name

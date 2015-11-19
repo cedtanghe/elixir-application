@@ -6,7 +6,7 @@ use Elixir\Dispatcher\Event;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
-use Elixir\Kernel\Package\PackageInterface;
+use Elixir\Kernel\Module\ModuleInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
@@ -16,7 +16,7 @@ class ApplicationEvent extends Event
     /**
      * @var string
      */
-    const PACKAGE_ADDED = 'package_added';
+    const MODULE_ADDED = 'module_added';
     
     /**
      * @var string
@@ -49,9 +49,9 @@ class ApplicationEvent extends Event
     const TERMINATE = 'terminate';
     
     /**
-     * @var PackageInterface
+     * @var ModuleInterface
      */
-    protected $package;
+    protected $module;
     
     /**
      * @var MiddlewareInterface
@@ -82,14 +82,14 @@ class ApplicationEvent extends Event
         parent::__construct($pType);
         
         $params += [
-            'package' => null,
+            'module' => null,
             'middleware' => null,
             'request' => null,
             'exception' => null,
             'response' => null,
         ];
         
-        $this->package = $params['package'];
+        $this->module = $params['module'];
         $this->middleware = $params['middleware'];
         $this->request = $params['request'];
         $this->exception = $params['exception'];
@@ -97,11 +97,11 @@ class ApplicationEvent extends Event
     }
 
     /**
-     * @return PackageInterface
+     * @return ModuleInterface
      */
-    public function getPackage()
+    public function getModule()
     {
-        return $this->package;
+        return $this->module;
     }
     
     /**

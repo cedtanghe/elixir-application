@@ -15,12 +15,12 @@ use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\Pipeline;
 use Elixir\Kernel\Middleware\TerminableInterface;
-use Elixir\Kernel\Package\PackageInterface;
+use Elixir\Kernel\Module\ModuleInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-class Application implements ApplicationInterface, CacheableInterface
+class Application implements ApplicationInterface, CacheableInterface, \ArrayAccess
 {
     use DispatcherTrait;
     
@@ -32,7 +32,7 @@ class Application implements ApplicationInterface, CacheableInterface
     /**
      * @var array
      */
-    protected $packages = [];
+    protected $modules = [];
     
     /**
      * @var ContainerInterface 
@@ -187,40 +187,40 @@ class Application implements ApplicationInterface, CacheableInterface
     /**
      * return boolean
      */
-    public function hasPackage($name)
+    public function hasModule($name)
     {
-        return isset($this->packages[$name]);
+        return isset($this->modules[$name]);
     }
 
     /**
      * {@inheritdoc}
      * @throws \LogicException
      */
-    public function register(PackageInterface $package)
+    public function register(ModuleInterface $module)
     {
         if ($this->booted)
         {
-            throw new \LogicException('You can not add more packages after booted the application.');
+            throw new \LogicException('You can not add more modules after booted the application.');
         }
         
-        $package->register($this);
-        $this->packages[$package->getName()] = $package;
+        $module->register($this);
+        $this->modules[$module->getName()] = $module;
     }
     
     /**
      * {@inheritdoc}
      */
-    public function getPackage($name)
+    public function getModule($name)
     {
-        return isset($this->packages[$name]) ? $this->packages[$name] : null;
+        return isset($this->modules[$name]) ? $this->modules[$name] : null;
     }
     
     /**
      * {@inheritdoc}
      */
-    public function getPackages()
+    public function getModules()
     {
-        return $this->packages;
+        return $this->modules;
     }
     
     /**
@@ -234,27 +234,27 @@ class Application implements ApplicationInterface, CacheableInterface
             throw new \LogicException('The application must first be booted.');
         }
         
-        $package = $this->getPackage($name);
+        $module = $this->getModule($name);
         
-        if (null === $package)
+        if (null === $module)
         {
             return null;
         }
         
         if ($root)
         {
-            $root = $package;
+            $root = $module;
 
-            while ($parent = $package->getParent())
+            while ($parent = $module->getParent())
             {
-                $root = $this->getPackage($parent);
+                $root = $this->getModule($parent);
             }
 
             return $this->hierarchy[$root->getName()];
         }
         else
         {
-            return $this->hierarchy[$package->getName()];
+            return $this->hierarchy[$module->getName()];
         }
     }
     
@@ -277,7 +277,7 @@ class Application implements ApplicationInterface, CacheableInterface
         $search = [];
         $find = function($data, $str) use ($className)
         {
-            $classes = [str_replace($str, $data['package']->getNamespace(), $className)];
+            $classes = [str_replace($str, $data['module']->getNamespace(), $className)];
             
             foreach ($data['children'] as $d)
             {
@@ -335,7 +335,7 @@ class Application implements ApplicationInterface, CacheableInterface
         $search = [];
         $find = function($data, $str, $path) use ($filePath)
         {
-            $files = [str_replace($str, $path ? $data['package']->getPath() : $data['package']->getName(), $filePath)];
+            $files = [str_replace($str, $path ? $data['module']->getPath() : $data['module']->getName(), $filePath)];
             
             foreach ($data['children'] as $d)
             {
@@ -380,6 +380,43 @@ class Application implements ApplicationInterface, CacheableInterface
     }
     
     /**
+     * @ignore
+     */
+    public function offsetExists($key)
+    {
+        return $this->container->has($key);
+    }
+
+    /**
+     * @ignore
+     */
+    public function offsetSet($key, $value) 
+    {
+        if (null === $key)
+        {
+            throw new \InvalidArgumentException('The key can not be undefined.');
+        }
+
+        $this->container->bind($key, $value);
+    }
+
+    /**
+     * @ignore
+     */
+    public function offsetGet($key) 
+    {
+        return $this->container->get($key);
+    }
+
+    /**
+     * @ignore
+     */
+    public function offsetUnset($key)
+    {
+        $this->container->unbind($key);
+    }
+    
+    /**
      * {@inheritdoc}
      */
     public function isBooted()
@@ -397,51 +434,51 @@ class Application implements ApplicationInterface, CacheableInterface
             return;
         }
         
-        $map = function(PackageInterface $package)
+        $map = function(ModuleInterface $module)
         {
-            $packages = [
-                'package' => $package,
+            $modules = [
+                'module' => $module,
                 'children' => []
             ];
             
-            foreach ($this->packages as $n => $p)
+            foreach ($this->modules as $n => $p)
             {
-                if ($p->getParent() === $package->getName())
+                if ($p->getParent() === $module->getName())
                 {
-                    $packages['children'][$p->getName()] = $map($p);
+                    $modules['children'][$p->getName()] = $map($p);
                 }
             }
             
-            return $packages;
+            return $modules;
         };
         
-        // Check required and parent packages and create hierarchy
-        foreach ($this->packages as $name => $package)
+        // Check required and parent modules and create hierarchy
+        foreach ($this->modules as $name => $module)
         {
-            $required = $package->getRequired();
+            $required = $module->getRequired();
             
             if (null !== $required)
             {
                 foreach ((array)$required as $r)
                 {
-                    if (!$this->hasPackage($r))
+                    if (!$this->hasModule($r))
                     {
-                        throw new \LogicException(sprintf('The "%s" package requires the use of the "%s" package.', $name, $r));
+                        throw new \LogicException(sprintf('The "%s" module requires the use of the "%s" module.', $name, $r));
                     }
                 }
             }
             
-            $parent = $package->getParent();
+            $parent = $module->getParent();
             
             if (null !== $parent)
             {
-                if (!$this->hasPackage($parent))
+                if (!$this->hasModule($parent))
                 {
-                    throw new \LogicException(sprintf('The "%s" package extends the unregistered package "%s".', $name, $parent));
+                    throw new \LogicException(sprintf('The "%s" module extends the unregistered module "%s".', $name, $parent));
                 }
             }
             
-            $this->hierarchy[$name] = $map($package);
+            $this->hierarchy[$name] = $map($module);
         }
     }
     

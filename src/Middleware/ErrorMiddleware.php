@@ -92,7 +92,7 @@ class ErrorMiddleware implements MiddlewareInterface, ContainerAwareInterface
             {
                 $controller = $this->failbackErrorController;
                 
-                if ($request->hasAttribute('_package'))
+                if ($request->hasAttribute('_module'))
                 {
                     $controller = 'error';
                 }
@@ -112,7 +112,7 @@ class ErrorMiddleware implements MiddlewareInterface, ContainerAwareInterface
                     
                     if (count($parts) === 3)
                     {
-                        $request = $request->withAttribute('_package', $parts[0]);
+                        $request = $request->withAttribute('_module', $parts[0]);
                         $request = $request->withAttribute('_controller', $parts[1]);
                         $request = $request->withAttribute('_action', $parts[2]);
                     }
