@@ -11,7 +11,7 @@ use Elixir\Kernel\ApplicationInterface;
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-trait ModuleTrait
+abstract class ModuleAbstract
 {
     /**
      * @var ApplicationInterface
