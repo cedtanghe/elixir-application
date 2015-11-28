@@ -30,3 +30,5 @@ class PipelineTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Response created->write->write->write->finalized!', (string)$response->getBody());
     }
 }
+
+// end file
