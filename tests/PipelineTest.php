@@ -31,4 +31,3 @@ class PipelineTest extends PHPUnit_Framework_TestCase
     }
 }
 
-// end file
