@@ -70,7 +70,6 @@ class ErrorMiddleware implements MiddlewareInterface, ContainerAwareInterface
                 default:
                     $statusCode = 500;
                     $message = 'Internal Server Error';
-                    break;
             }
             
             if ($this->kernel instanceof ApplicationInterface)
