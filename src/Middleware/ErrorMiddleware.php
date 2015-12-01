@@ -77,7 +77,7 @@ class ErrorMiddleware implements MiddlewareInterface, ContainerAwareInterface
                 $event = new ApplicationEvent(ApplicationEvent::EXCEPTION, ['request' => $request, 'response' => $response, 'exception' => $e]);
                 $this->kernel->dispatch($event);
                 
-                $response = $event->getRequest();
+                $request = $event->getRequest();
                 $response = $event->getResponse();
                 
                 if ($response instanceof ResponseInterface)
