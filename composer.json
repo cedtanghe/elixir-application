@@ -28,6 +28,22 @@
         {
             "type": "vcs",
             "url": "https://github.com/cedtanghe/elixir-http"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-helper"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-filter"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-validator"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/cedtanghe/elixir-view"
         }
     ],
     "require": {
@@ -51,5 +67,9 @@
         }
     },
     "suggest": {
+        "elixir/elixir-helper": "*",
+        "elixir/elixir-validator": "*",
+        "elixir/elixir-filter": "*",
+        "elixir/elixir-view": "*"
     }
 }
