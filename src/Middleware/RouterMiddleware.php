@@ -11,6 +11,7 @@ use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\TerminableInterface;
+use Elixir\Routing\Route;
 use Elixir\Routing\RouterInterface;
 
 /**
@@ -58,9 +59,9 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
             $routeMatch = $this->router->match(trim($request->getPathInfo(), '/'));
             $request = $request->withAttributes($routeMatch->all() + $request->getAttributes());
             
-            if ($routeMatch->has('middlewares'))
+            if ($routeMatch->has(Route::MIDDLEWARES))
             {
-                $this->middlewares = $routeMatch->get('middlewares');
+                $this->middlewares = $routeMatch->get(Route::MIDDLEWARES);
                 $kernelIsLocator = $this->kernel instanceof LocatorInterface;
                 
                 foreach ($this->middlewares as $middleware)
