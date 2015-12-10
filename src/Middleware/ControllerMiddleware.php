@@ -56,9 +56,9 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
      */
     public function __invoke($request, $response, callable $next) 
     {
-        $module = $request->getAttribute('_module', null);
-        $controller = $request->getAttribute('_controller', null);
-        $action = $request->getAttribute('_action', null);
+        $module = $request->getAttribute('module', null);
+        $controller = $request->getAttribute('controller', null);
+        $action = $request->getAttribute('action', null);
         
         if (null !== $module && null !== $controller && null !== $action)
         {

@@ -11,7 +11,7 @@ use Elixir\HTTP\ServerRequestInterface;
 use Elixir\Kernel\ApplicationEvent;
 use Elixir\Kernel\ApplicationInterface;
 use Elixir\Kernel\CacheableInterface;
-use Elixir\Kernel\LocatorInterface;
+use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\Pipeline;
 use Elixir\Kernel\Middleware\TerminableInterface;
@@ -168,7 +168,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             $middleware->setContainer($this->container);
         }
         
-        if ($middleware instanceof LocatorInterface)
+        if ($middleware instanceof LocatorAwareInterface)
         {
             $middleware->setLocator($this);
         }
