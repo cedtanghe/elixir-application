@@ -79,7 +79,7 @@ trait ControllerTrait
      * @see ContainerInterface::get()
      * @throws \RuntimeException
      */
-    protected function service($key, array $options = [], $default = null)
+    protected function get($key, array $options = [], $default = null)
     {
         if (!$this->container)
         {
