@@ -50,6 +50,11 @@ trait RESTfulControllerTrait
             }
         }
         
+        if (method_exists($this, $method))
+        {
+            return $method;
+        }
+        
         return $method;
     }
 }
