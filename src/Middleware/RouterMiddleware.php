@@ -57,7 +57,7 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
         if ($request->isMainRequest())
         {
             $routeMatch = $this->router->match(trim($request->getPathInfo(), '/'));
-            $request = $request->withAttributes($routeMatch->all() + $request->getAttributes());
+            $request = $request->withAttributes(['route_name' => $routeMatch->getRouteName()] + $routeMatch->all() + $request->getAttributes());
             
             if ($routeMatch->has(Route::MIDDLEWARES))
             {

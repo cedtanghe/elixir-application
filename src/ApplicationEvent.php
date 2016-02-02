@@ -86,7 +86,7 @@ class ApplicationEvent extends Event
             'middleware' => null,
             'request' => null,
             'exception' => null,
-            'response' => null,
+            'response' => null
         ];
         
         $this->module = $params['module'];
