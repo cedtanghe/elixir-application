@@ -65,6 +65,16 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     protected $cacheVersion = null;
     
     /**
+     * @var boolean
+     */
+    protected $cacheLoaded = false;
+    
+    /**
+     * @var array
+     */
+    protected $cacheData = [];
+    
+    /**
      * @var string 
      */
     protected $cacheKey;
@@ -120,12 +130,13 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
      */
     public function loadFromCache($cache, $version = null, $key = self::DEFAULT_CACHE_KEY)
     {
+        $this->cacheLoaded = true;
         $this->cache = $cache;
         $this->cacheVersion = $version;
         $this->cacheKey = $key;
         
-        $data = isset($this->cache[$this->cacheKey]) ? $this->cache[$this->cacheKey]: [];
-        $version = isset($data['version']) ? $data['version'] : null;
+        $this->cacheData = isset($this->cache[$this->cacheKey]) ? $this->cache[$this->cacheKey]: [];
+        $version = isset($this->cacheData['_version']) ? $this->cacheData['_version'] : null;
         
         if (null === $this->cacheVersion || null === $version || $version === $this->cacheVersion)
         {
@@ -135,12 +146,12 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             }
             
             $this->classesLoaded = array_merge(
-                isset($data['classes']) ? $data['classes'] : [],
+                isset($this->cacheData['classes']) ? $this->cacheData['classes'] : [],
                 $this->classesLoaded
             );
             
             $this->filesLoaded = array_merge(
-                isset($data['files']) ? $data['files'] : [],
+                isset($this->cacheData['files']) ? $this->cacheData['files'] : [],
                 $this->filesLoaded
             );
             
@@ -148,6 +159,14 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         }
         
         return false;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function cacheLoaded()
+    {
+        return $this->cacheLoaded;
     }
     
     /**
@@ -523,14 +542,28 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     /**
      * {@inheritdoc}
      */
+    public function isFreshCache()
+    {
+        if (!isset($this->cacheData['classes']) || !isset($this->cacheData['files']))
+        {
+            return false;
+        }
+        
+        return count(array_diff_assoc($this->cacheData['classes'], $this->classesLoaded)) === 0 && 
+               count(array_diff_assoc($this->cacheData['files'], $this->filesLoaded)) === 0;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function exportToCache()
     {
-        if (null !== $this->cache)
+        if (null !== $this->cache && !$this->isFreshCache())
         {
             $this->cache[$this->cacheKey] = [
                 'classes' => $this->classesLoaded,
                 'files' => $this->filesLoaded,
-                'version' => $this->cacheVersion
+                '_version' => $this->cacheVersion
             ];
             
             return true;
@@ -547,6 +580,10 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         if (null !== $this->cache)
         {
             unset($this->cache[$this->cacheKey]);
+            
+            $this->cacheLoaded = false;
+            $this->cacheData = [];
+            
             return true;
         }
         
