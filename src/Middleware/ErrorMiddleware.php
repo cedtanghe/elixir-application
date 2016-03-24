@@ -36,7 +36,7 @@ class ErrorMiddleware implements MiddlewareInterface, ContainerAwareInterface
      */
     public function __construct($failbackErrorController = null) 
     {
-        $this->failbackErrorController = null;
+        $this->failbackErrorController = $failbackErrorController;
     }
 
     /**
