@@ -136,7 +136,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         $this->cacheKey = $key;
         
         $this->cacheData = isset($this->cache[$this->cacheKey]) ? $this->cache[$this->cacheKey]: [];
-        $version = isset($this->cacheData['_version']) ? $this->cacheData['_version'] : null;
+        $version = isset($this->cacheData['version']) ? $this->cacheData['version'] : null;
         
         if (null === $this->cacheVersion || null === $version || $version === $this->cacheVersion)
         {
@@ -563,7 +563,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             $this->cache[$this->cacheKey] = [
                 'classes' => $this->classesLoaded,
                 'files' => $this->filesLoaded,
-                '_version' => $this->cacheVersion
+                'version' => $this->cacheVersion
             ];
             
             return true;

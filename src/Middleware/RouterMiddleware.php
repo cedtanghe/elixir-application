@@ -6,13 +6,11 @@ use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
-use Elixir\Kernel\HTTPKernelInterface;
 use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\TerminableInterface;
 use Elixir\Routing\Route;
-use Elixir\Routing\RouterInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
@@ -30,23 +28,11 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
     protected $middlewares = [];
     
     /**
-     * @var RouterInterface
-     */
-    protected $router;
-    
-    /**
-     * @var HTTPKernelInterface
-     */
-    protected $kernel;
-    
-    /**
      * {@inheritdoc}
      */
     public function setContainer(ContainerInterface $container = null)
     {
         $this->container = $container;
-        $this->router = $container->get('Elixir\Routing\RouterInterface');
-        $this->kernel = $container->get('kernel');
     }
     
     /**
@@ -56,13 +42,16 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
     {
         if ($request->isMainRequest())
         {
-            $routeMatch = $this->router->match(trim($request->getPathInfo(), '/'));
+            $router = $this->container->get('Elixir\Routing\RouterInterface');
+            $kernel = $this->container->get('kernel');
+            
+            $routeMatch = $router->match(trim($request->getPathInfo(), '/'));
             $request = $request->withAttributes(['route_name' => $routeMatch->getRouteName()] + $routeMatch->all() + $request->getAttributes());
             
             if ($routeMatch->has(Route::MIDDLEWARES))
             {
                 $this->middlewares = $routeMatch->get(Route::MIDDLEWARES);
-                $kernelIsLocator = $this->kernel instanceof LocatorInterface;
+                $kernelIsLocator = $kernel instanceof LocatorInterface;
                 
                 foreach ($this->middlewares as $middleware)
                 {
@@ -73,7 +62,7 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
                     
                     if ($kernelIsLocator && $middleware instanceof LocatorAwareInterface)
                     {
-                        $middleware->setLocator($this->kernel);
+                        $middleware->setLocator($kernel);
                     }
                 }
                 
