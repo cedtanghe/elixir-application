@@ -11,6 +11,7 @@ use Elixir\HTTP\ServerRequestInterface;
 use Elixir\Kernel\ApplicationEvent;
 use Elixir\Kernel\ApplicationInterface;
 use Elixir\Kernel\CacheableInterface;
+use Elixir\Kernel\HTTPKernelEvent;
 use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\Pipeline;
@@ -193,6 +194,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         }
         
         $this->middlewares[] = $middleware;
+        $this->dispatch(new HTTPKernelEvent(HTTPKernelEvent::MIDDLEWARE, ['middleware' => $middleware]));
     }
     
     /**
@@ -223,7 +225,9 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         }
         
         $module->register($this);
+        
         $this->modules[$module->getName()] = $module;
+        $this->dispatch(new ApplicationEvent(ApplicationEvent::MODULE, ['module' => $module]));
     }
     
     /**
@@ -512,7 +516,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             $this->container->instance('Elixir\HTTP\ServerRequestInterface', $request, ['aliases' => 'request']);
         }
         
-        $event = new ApplicationEvent(ApplicationEvent::REQUEST, ['request' => $request]);
+        $event = new HTTPKernelEvent(HTTPKernelEvent::REQUEST, ['request' => $request]);
         $this->dispatch($event);
         
         $request = $event->getRequest();
@@ -526,7 +530,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             $response = ResponseFactory::createHTML($response, 200);
         }
         
-        $event = new ApplicationEvent(ApplicationEvent::RESPONSE, ['response' => $response]);
+        $event = new HTTPKernelEvent(HTTPKernelEvent::RESPONSE, ['response' => $response]);
         $this->dispatch($event);
         
         $response = $event->getResponse();
@@ -595,7 +599,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
      */
     public function terminate(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $this->dispatch(new ApplicationEvent(ApplicationEvent::TERMINATE, ['request' => $request, 'response' => $response]));
+        $this->dispatch(new HTTPKernelEvent(HTTPKernelEvent::TERMINATE, ['request' => $request, 'response' => $response]));
         $middlewares = array_reverse($this->middlewares);
         
         foreach ($middlewares as $middleware)

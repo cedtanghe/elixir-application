@@ -2,6 +2,7 @@
 
 namespace Elixir\Kernel;
 
+use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
@@ -9,7 +10,7 @@ use Elixir\Kernel\Middleware\MiddlewareInterface;
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface HTTPKernelInterface 
+interface HTTPKernelInterface extends DispatcherInterface
 {
     /**
      * @param MiddlewareInterface $middleware

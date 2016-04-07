@@ -3,14 +3,13 @@
 namespace Elixir\Kernel;
 
 use Elixir\DI\ContainerInterface;
-use Elixir\Dispatcher\DispatcherInterface;
 use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Module\ModuleInterface;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface ApplicationInterface extends HTTPKernelInterface, LocatorInterface, DispatcherInterface
+interface ApplicationInterface extends HTTPKernelInterface, LocatorInterface
 {
     /**
      * @return ContainerInterface

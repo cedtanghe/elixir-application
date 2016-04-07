@@ -6,8 +6,7 @@ use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
 use Elixir\HTTP\ResponseFactory;
 use Elixir\HTTP\ResponseInterface;
-use Elixir\Kernel\ApplicationEvent;
-use Elixir\Kernel\ApplicationInterface;
+use Elixir\Kernel\HTTPKernelEvent;
 use Elixir\Kernel\HTTPKernelInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 
@@ -72,65 +71,52 @@ class ErrorMiddleware implements MiddlewareInterface, ContainerAwareInterface
                     $message = 'Internal Server Error';
             }
             
-            if ($this->kernel instanceof ApplicationInterface)
+            if (is_callable($this->failbackErrorController))
             {
-                $event = new ApplicationEvent(ApplicationEvent::EXCEPTION, ['request' => $request, 'response' => $response, 'exception' => $e]);
+                return call_user_func_array($this->failbackErrorController, $request, $e);
+            }
+            else
+            {
+                $event = new HTTPKernelEvent(HTTPKernelEvent::EXCEPTION, ['request' => $request, 'exception' => $e]);
                 $this->kernel->dispatch($event);
-                
+
                 $request = $event->getRequest();
                 $response = $event->getResponse();
-                
+
                 if ($response instanceof ResponseInterface)
                 {
                     $response = $response->withStatus($statusCode);
                     return $response;
                 }
-            }
-            
-            if ($request->isMainRequest())
-            {
-                $controller = $this->failbackErrorController;
                 
-                if (null === $controller && $request->hasAttribute('module'))
+                if ($request->isMainRequest())
                 {
-                    $controller = 'error';
-                }
-                
-                if (empty($controller))
-                {
-                    $response = ResponseFactory::create($message, $statusCode);
-                    return;
-                }
-                
-                $request = $request->withoutAttributes();
-                $request = $request->setParentRequest($request);
-                
-                if (is_string($controller))
-                {
-                    $parts = explode('::', $controller);
-                    
-                    if (count($parts) === 3)
+                    if ($request->hasAttribute('module'))
                     {
-                        $request = $request->withAttribute('module', $parts[0]);
-                        $request = $request->withAttribute('controller', $parts[1]);
-                        $request = $request->withAttribute('action', $parts[2]);
+                        $module = $request->getAttribute('module');
+                        $controller = 'error';
+                        $action = $request->getAttribute('action');
+                        
+                        $request = $request->withoutAttributes();
+                        $request = $request->withAttribute('exception', $e);
+                        $request = $request->withAttribute('module', $module);
+                        $request = $request->withAttribute('controller', $controller);
+                        $request = $request->withAttribute('action', $action);
+                        
+                        $request->setParentRequest($request);
+
+                        $response = $this->kernel->handle($request);
+                        $response = $response->withStatus($statusCode);
                     }
                     else
                     {
-                        $request = $request->withAttribute('controller', $controller);
+                        $response = ResponseFactory::create($message, $statusCode);
                     }
                 }
                 else
                 {
-                    $request = $request->withAttribute('controller', $controller);
+                    $response = ResponseFactory::create($message, $statusCode);
                 }
-                
-                $response = $this->kernel->handle($request);
-                $response = $response->withStatus($statusCode);
-            }
-            else
-            {
-                $response = ResponseFactory::create($message, $statusCode);
             }
         }
         

@@ -10,6 +10,7 @@ use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\TerminableInterface;
+use Elixir\MVC\Exception\NotFoundException;
 use Elixir\Routing\Route;
 
 /**
@@ -37,6 +38,7 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
     
     /**
      * {@inheritdoc}
+     * @throws NotFoundException
      */
     public function __invoke($request, $response, callable $next) 
     {
@@ -46,32 +48,40 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
             $kernel = $this->container->get('kernel');
             
             $routeMatch = $router->match(trim($request->getPathInfo(), '/'));
-            $request = $request->withAttributes(['route_name' => $routeMatch->getRouteName()] + $routeMatch->all() + $request->getAttributes());
             
-            if ($routeMatch->has(Route::MIDDLEWARES))
+            if (null !== $routeMatch)
             {
-                $this->middlewares = $routeMatch->get(Route::MIDDLEWARES);
-                $kernelIsLocator = $kernel instanceof LocatorInterface;
-                
-                foreach ($this->middlewares as $middleware)
+                $request = $request->withAttributes(['route_name' => $routeMatch->getRouteName()] + $routeMatch->all() + $request->getAttributes());
+
+                if ($routeMatch->has(Route::MIDDLEWARES))
                 {
-                    if ($middleware instanceof ContainerAwareInterface)
+                    $this->middlewares = $routeMatch->get(Route::MIDDLEWARES);
+                    $kernelIsLocator = $kernel instanceof LocatorInterface;
+
+                    foreach ($this->middlewares as $middleware)
                     {
-                        $middleware->setContainer($this->container);
+                        if ($middleware instanceof ContainerAwareInterface)
+                        {
+                            $middleware->setContainer($this->container);
+                        }
+
+                        if ($kernelIsLocator && $middleware instanceof LocatorAwareInterface)
+                        {
+                            $middleware->setLocator($kernel);
+                        }
                     }
-                    
-                    if ($kernelIsLocator && $middleware instanceof LocatorAwareInterface)
+
+                    $pipelineMiddleware = new PipelineMiddleware(new Pipeline($middlewares));
+
+                    return $pipelineMiddleware($request, $response, function($request, $response) use ($next)
                     {
-                        $middleware->setLocator($kernel);
-                    }
+                        return $next($request, $response);
+                    });
                 }
-                
-                $pipelineMiddleware = new PipelineMiddleware(new Pipeline($middlewares));
-                
-                return $pipelineMiddleware($request, $response, function($request, $response) use ($next)
-                {
-                    return $next($request, $response);
-                });
+            }
+            else
+            {
+                throw new NotFoundException('No route found.');
             }
         }
         
