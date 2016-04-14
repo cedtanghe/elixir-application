@@ -6,7 +6,6 @@ use Elixir\DI\ContainerAwareInterface;
 use Elixir\DI\ContainerInterface;
 use Elixir\DI\ContainerResolvableInterface;
 use Elixir\Kernel\Controller\RESTfulControllerInterface;
-use Elixir\Kernel\Exception\NotFoundException;
 use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
@@ -51,8 +50,7 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
     
     /**
      * {@inheritdoc}
-     * @throws NotFoundException
-     * @throws LogicException
+     * @throws \RuntimeException
      */
     public function __invoke($request, $response, callable $next) 
     {
@@ -72,37 +70,32 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
         
         if (empty($controller))
         {
-            throw new NotFoundException('No controller found.');
+            throw new \RuntimeException('No controller found.');
         }
         
-        if (is_string($controller) || is_array($controller))
+        if (is_array($controller))
         {
-            if (is_string($controller))
-            {
-                if (false === strpos($controller, '::'))
-                {
-                    throw new LogicException(sprintf('Controller "%s" is not callable.', $controller));
-                }
+            $instance = $controller[0];
+        }
+        else if (false !== strpos($controller, '::'))
+        {
+            $controller = explode('::', $controller);
 
-                $controller = explode('::', $controller);
-                
-                if (null !== $this->locator && false !== strpos($controller[0], '(@'))
-                {
-                    $controller[0] = $this->locator->locateClass($controller[0]);
-
-                    if(null === $controller[0])
-                    {
-                        throw new NotFoundException(sprintf('Controller "%s" was not detected.', $parts[0]));
-                    }
-                }
-            
-                $instance = $this->container->resolveClass($parts[0]);
-            }
-            else
+            if (null !== $this->locator && false !== strpos($controller[0], '(@'))
             {
-                $instance = $controller[0];
+                $controller[0] = $this->locator->locateClass($controller[0]);
+
+                if(null === $controller[0])
+                {
+                    throw new \RuntimeException(sprintf('Controller "%s" was not detected.', $parts[0]));
+                }
             }
-            
+
+            $instance = $this->container->resolveClass($parts[0]);
+        }
+        
+        if (isset($instance))
+        {
             if($instance instanceof RESTfulControllerInterface)
             {
                 $method = $instance->getRestFulMethodName($controller[1], $request);
@@ -111,14 +104,15 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
             {
                 $method = $controller[1];
             }
-            
+
             $controller = [$instance, $method];
         }
         
         $callable = $this->container->resolve(
             $controller, 
             [
-                'resolver_arguments_available' => $request->getAttributes() + ['request' => $request, 'response' => $response]
+                'resolver_arguments_available' => $request->getAttributes() + ['request' => $request, 'response' => $response],
+                'resolve' => true
             ]
         );
         

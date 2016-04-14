@@ -310,7 +310,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             return $classes;
         };
         
-        if(false !== strpos($pClassName, '(@') && preg_match('/^\(@([^\)]+)\)/', $className, $matches))
+        if(false !== strpos($className, '(@') && preg_match('/^\(@([^\)]+)\)/', $className, $matches))
         {
             $hierarchy = $this->getHierarchy($matches[1], false);
             
@@ -457,7 +457,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
             return;
         }
         
-        $map = function(ModuleInterface $module)
+        $map = function($module)
         {
             $modules = [
                 'module' => $module,
