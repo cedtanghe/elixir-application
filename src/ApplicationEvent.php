@@ -24,13 +24,13 @@ class ApplicationEvent extends HTTPKernelEvent
      * {@inheritdoc}
      * @param array $params
      */
-    public function __construct($pType, array $params = [])
+    public function __construct($type, array $params = [])
     {
         $params += [
             'module' => null
         ];
         
-        parent::__construct($pType, $params);
+        parent::__construct($type, $params);
         
         $this->module = $params['module'];
     }
