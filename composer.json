@@ -13,45 +13,9 @@
     ],
     "homepage": "https://github.com/cedtanghe/elixir-kernel",
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-stdlib"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-dispatcher"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-di"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-http"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-helper"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-filter"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-validator"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-view"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/cedtanghe/elixir-routing"
-        }
     ],
     "require": {
-        "php": ">=5.4",
+        "php": ">=5.6",
         "elixir/elixir-stdlib": "*",
         "elixir/elixir-dispatcher": "*",
         "elixir/elixir-di": "*",
@@ -75,6 +39,7 @@
         "elixir/elixir-validator": "*",
         "elixir/elixir-filter": "*",
         "elixir/elixir-view": "*",
-        "elixir/elixir-routing": "*"
+        "elixir/elixir-routing": "*",
+        "elixir/elixir-security": "*"
     }
 }

@@ -9,7 +9,7 @@ use Elixir\Kernel\Controller\RESTfulControllerInterface;
 use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
-use Elixir\Util\StringUtils;
+use function Elixir\STDLib\camelize;
 
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
@@ -62,10 +62,10 @@ class ControllerMiddleware implements MiddlewareInterface, ContainerAwareInterfa
         {
             if(false === strpos($module, '(@'))
             {
-                $module = StringUtils::camelize($module);
+                $module = camelize($module);
             }
             
-            $controller = sprintf('%s\Controller\%s::%s', $module, StringUtils::camelize($controller), StringUtils::camelize($action));
+            $controller = sprintf('%s\Controller\%s::%s', $module, camelize($controller), camelize($action));
         }
         
         if (empty($controller))
