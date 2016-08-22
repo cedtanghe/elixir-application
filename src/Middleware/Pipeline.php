@@ -11,7 +11,7 @@ use Elixir\HTTP\ServerRequestInterface;
 class Pipeline
 {
     /**
-     * @var array 
+     * @var array
      */
     protected $middlewares;
 
@@ -22,7 +22,7 @@ class Pipeline
     {
         $this->middlewares = $middlewares;
     }
-    
+
     /**
      * @return array
      */
@@ -33,20 +33,19 @@ class Pipeline
 
     /**
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
+     * @param ResponseInterface      $response
+     *
      * @return ResponseInterface
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response = null)
     {
-        if (count($this->middlewares) === 0)
-        {
+        if (count($this->middlewares) === 0) {
             return $response;
         }
-        
+
         $middleware = array_shift($this->middlewares);
-        
-        return $middleware($request, $response, function($request, $response)
-        {
+
+        return $middleware($request, $response, function ($request, $response) {
             return $this->process($request, $response);
         });
     }

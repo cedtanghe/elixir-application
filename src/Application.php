@@ -8,11 +8,6 @@ use Elixir\Dispatcher\DispatcherTrait;
 use Elixir\HTTP\ResponseFactory;
 use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
-use Elixir\Kernel\ApplicationEvent;
-use Elixir\Kernel\ApplicationInterface;
-use Elixir\Kernel\CacheableInterface;
-use Elixir\Kernel\HTTPKernelEvent;
-use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\Middleware\MiddlewareInterface;
 use Elixir\Kernel\Middleware\Pipeline;
 use Elixir\Kernel\Middleware\TerminableInterface;
@@ -24,67 +19,67 @@ use Elixir\Kernel\Module\ModuleInterface;
 class Application implements ApplicationInterface, CacheableInterface, \ArrayAccess
 {
     use DispatcherTrait;
-    
+
     /**
      * @var array
      */
     protected $middlewares = [];
-    
+
     /**
      * @var array
      */
     protected $modules = [];
-    
+
     /**
-     * @var ContainerInterface 
+     * @var ContainerInterface
      */
     protected $container;
-    
+
     /**
-     * @var array 
+     * @var array
      */
     protected $hierarchy = [];
-    
+
     /**
-     * @var array 
+     * @var array
      */
     protected $classesLoaded = [];
-    
+
     /**
-     * @var array 
+     * @var array
      */
-    protected  $filesLoaded = [];
+    protected $filesLoaded = [];
 
     /**
      * @var array|\ArrayAccess
      */
     protected $cache;
-    
+
     /**
      * @var string|numeric|null
      */
     protected $cacheVersion = null;
-    
+
     /**
-     * @var boolean
+     * @var bool
      */
     protected $cacheLoaded = false;
-    
+
     /**
      * @var array
      */
     protected $cacheData = [];
-    
+
     /**
-     * @var string 
+     * @var string
      */
     protected $cacheKey;
-    
+
     /**
-     * @var boolean 
+     * @var bool
      */
     protected $booted = false;
-    
+
     /**
      * @param ContainerInterface $container
      */
@@ -101,7 +96,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->container;
     }
-    
+
     /**
      * @return array|\ArrayAccess
      */
@@ -109,7 +104,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->cache;
     }
-    
+
     /**
      * @return string|numeric|null
      */
@@ -117,7 +112,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->cacheVersion;
     }
-    
+
     /**
      * @return string
      */
@@ -125,7 +120,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->cacheKey;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -135,33 +130,31 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         $this->cache = $cache;
         $this->cacheVersion = $version;
         $this->cacheKey = $key;
-        
-        $this->cacheData = isset($this->cache[$this->cacheKey]) ? $this->cache[$this->cacheKey]: [];
+
+        $this->cacheData = isset($this->cache[$this->cacheKey]) ? $this->cache[$this->cacheKey] : [];
         $version = isset($this->cacheData['version']) ? $this->cacheData['version'] : null;
-        
-        if (null === $this->cacheVersion || null === $version || $version === $this->cacheVersion)
-        {
-            if (null !== $version)
-            {
+
+        if (null === $this->cacheVersion || null === $version || $version === $this->cacheVersion) {
+            if (null !== $version) {
                 $this->cacheVersion = $version;
             }
-            
+
             $this->classesLoaded = array_merge(
                 isset($this->cacheData['classes']) ? $this->cacheData['classes'] : [],
                 $this->classesLoaded
             );
-            
+
             $this->filesLoaded = array_merge(
                 isset($this->cacheData['files']) ? $this->cacheData['files'] : [],
                 $this->filesLoaded
             );
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -169,34 +162,32 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->cacheLoaded;
     }
-    
+
     /**
-     * return boolean
+     * return boolean.
      */
     public function hasMiddleware(MiddlewareInterface $middleware)
     {
         return in_array($middleware, $this->middlewares, true);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function pipe(MiddlewareInterface $middleware)
     {
-        if ($middleware instanceof ContainerAwareInterface)
-        {
+        if ($middleware instanceof ContainerAwareInterface) {
             $middleware->setContainer($this->container);
         }
-        
-        if ($middleware instanceof LocatorAwareInterface)
-        {
+
+        if ($middleware instanceof LocatorAwareInterface) {
             $middleware->setLocator($this);
         }
-        
+
         $this->middlewares[] = $middleware;
         $this->dispatch(new HTTPKernelEvent(HTTPKernelEvent::MIDDLEWARE, ['middleware' => $middleware]));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -204,9 +195,9 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->middlewares;
     }
-    
+
     /**
-     * return boolean
+     * return boolean.
      */
     public function hasModule($name)
     {
@@ -215,21 +206,21 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
 
     /**
      * {@inheritdoc}
+     *
      * @throws \LogicException
      */
     public function register(ModuleInterface $module)
     {
-        if ($this->booted)
-        {
+        if ($this->booted) {
             throw new \LogicException('You can not add more modules after booted the application.');
         }
-        
+
         $module->register($this);
-        
+
         $this->modules[$module->getName()] = $module;
         $this->dispatch(new ApplicationEvent(ApplicationEvent::MODULE, ['module' => $module]));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -237,7 +228,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return isset($this->modules[$name]) ? $this->modules[$name] : null;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -245,163 +236,142 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->modules;
     }
-    
+
     /**
      * {@inheritdoc}
+     *
      * @throws \LogicException
      */
     public function getHierarchy($name, $root = false)
     {
-        if(!$this->booted)
-        {
+        if (!$this->booted) {
             throw new \LogicException('The application must first be booted.');
         }
-        
+
         $module = $this->getModule($name);
-        
-        if (null === $module)
-        {
+
+        if (null === $module) {
             return null;
         }
-        
-        if ($root)
-        {
+
+        if ($root) {
             $root = $module;
 
-            while ($parent = $module->getParent())
-            {
+            while ($parent = $module->getParent()) {
                 $root = $this->getModule($parent);
             }
 
             return $this->hierarchy[$root->getName()];
-        }
-        else
-        {
+        } else {
             return $this->hierarchy[$module->getName()];
         }
     }
-    
+
     /**
      * {@inheritdoc}
+     *
      * @throws \LogicException
      */
     public function locateClass($className)
     {
-        if(!$this->booted)
-        {
+        if (!$this->booted) {
             throw new \LogicException('The application must first be booted.');
         }
-        
-        if(isset($this->classesLoaded[$className]))
-        {
+
+        if (isset($this->classesLoaded[$className])) {
             return $this->classesLoaded[$className];
         }
-        
+
         $search = [];
-        $find = function($data, $str) use ($className)
-        {
+        $find = function ($data, $str) use ($className) {
             $classes = [str_replace($str, $data['module']->getNamespace(), $className)];
-            
-            foreach ($data['children'] as $d)
-            {
+
+            foreach ($data['children'] as $d) {
                 $classes += $find($d, $str);
             }
-            
+
             return $classes;
         };
-        
-        if(false !== strpos($className, '(@') && preg_match('/^\(@([^\)]+)\)/', $className, $matches))
-        {
+
+        if (false !== strpos($className, '(@') && preg_match('/^\(@([^\)]+)\)/', $className, $matches)) {
             $hierarchy = $this->getHierarchy($matches[1], false);
-            
-            if (null !== $hierarchy)
-            {
+
+            if (null !== $hierarchy) {
                 $search += $find($hierarchy, $matches[0]);
             }
-        }
-        else
-        {
+        } else {
             $search = [$className];
         }
-        
+
         $search = array_reverse($search);
-        
-        foreach($search as $class)
-        {
-            if(class_exists($class))
-            {
+
+        foreach ($search as $class) {
+            if (class_exists($class)) {
                 $this->classesLoaded[$className] = $class;
+
                 return $class;
             }
         }
-        
+
         return null;
     }
 
     /**
      * {@inheritdoc}
+     *
      * @throws \LogicException
      */
     public function locateFile($filePath, $single = true)
     {
-        if(!$this->booted)
-        {
+        if (!$this->booted) {
             throw new \LogicException('The application must first be booted.');
         }
-        
-        if(isset($this->filesLoaded[$filePath]))
-        {
+
+        if (isset($this->filesLoaded[$filePath])) {
             $files = $this->filesLoaded[$filePath];
+
             return $single ? $files[0] : $files;
         }
-        
+
         $search = [];
-        $find = function($data, $str, $path) use ($filePath)
-        {
+        $find = function ($data, $str, $path) use ($filePath) {
             $files = [str_replace($str, $path ? $data['module']->getPath() : $data['module']->getName(), $filePath)];
-            
-            foreach ($data['children'] as $d)
-            {
+
+            foreach ($data['children'] as $d) {
                 $files += $find($d, $str, $path);
             }
-            
+
             return $files;
         };
 
-        if(false !== strpos($filePath, '(@') && preg_match('/\(@([^\)]+)\)/', $filePath, $matches))
-        {
+        if (false !== strpos($filePath, '(@') && preg_match('/\(@([^\)]+)\)/', $filePath, $matches)) {
             $hierarchy = $this->getHierarchy($matches[1], false);
-            
-            if (null !== $hierarchy)
-            {
+
+            if (null !== $hierarchy) {
                 $search += $find($hierarchy, $matches[0], strpos($filePath, $matches[0]) === 0);
             }
-        }
-        else
-        {
+        } else {
             $search = [$filePath];
         }
 
         $search = array_reverse($search);
         $files = [];
 
-        foreach($search as $file)
-        {
-            if(file_exists($file))
-            {
+        foreach ($search as $file) {
+            if (file_exists($file)) {
                 $files[] = $file;
             }
         }
-        
-        if(count($files) > 0)
-        {
+
+        if (count($files) > 0) {
             $this->filesLoaded[$filePath] = $files;
+
             return $single ? $files[0] : $files;
         }
-        
+
         return null;
     }
-    
+
     /**
      * @ignore
      */
@@ -413,10 +383,9 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     /**
      * @ignore
      */
-    public function offsetSet($key, $value) 
+    public function offsetSet($key, $value)
     {
-        if (null === $key)
-        {
+        if (null === $key) {
             throw new \InvalidArgumentException('The key can not be undefined.');
         }
 
@@ -426,7 +395,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     /**
      * @ignore
      */
-    public function offsetGet($key) 
+    public function offsetGet($key)
     {
         return $this->container->get($key);
     }
@@ -438,7 +407,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         $this->container->unbind($key);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -446,154 +415,139 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         return $this->booted;
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function boot()
     {
-        if ($this->booted)
-        {
+        if ($this->booted) {
             return;
         }
-        
-        $map = function($module)
-        {
+
+        $map = function ($module) {
             $modules = [
                 'module' => $module,
-                'children' => []
+                'children' => [],
             ];
-            
-            foreach ($this->modules as $n => $p)
-            {
-                if ($p->getParent() === $module->getName())
-                {
+
+            foreach ($this->modules as $n => $p) {
+                if ($p->getParent() === $module->getName()) {
                     $modules['children'][$p->getName()] = $map($p);
                 }
             }
-            
+
             return $modules;
         };
-        
+
         // Check required and parent modules and create hierarchy
-        foreach ($this->modules as $name => $module)
-        {
+        foreach ($this->modules as $name => $module) {
             $required = $module->getRequired();
-            
-            if (null !== $required)
-            {
-                foreach ((array)$required as $r)
-                {
-                    if (!$this->hasModule($r))
-                    {
+
+            if (null !== $required) {
+                foreach ((array) $required as $r) {
+                    if (!$this->hasModule($r)) {
                         throw new \LogicException(sprintf('The "%s" module requires the use of the "%s" module.', $name, $r));
                     }
                 }
             }
-            
+
             $parent = $module->getParent();
-            
-            if (null !== $parent)
-            {
-                if (!$this->hasModule($parent))
-                {
+
+            if (null !== $parent) {
+                if (!$this->hasModule($parent)) {
                     throw new \LogicException(sprintf('The "%s" module extends the unregistered module "%s".', $name, $parent));
                 }
             }
-            
+
             $this->hierarchy[$name] = $map($module);
         }
     }
-    
+
     /**
      * {@inheritdoc}
+     *
      * @throws \LogicException
      */
     public function handle(ServerRequestInterface $request)
     {
-        if ($request->isMainRequest())
-        {
+        if ($request->isMainRequest()) {
             $this->container->instance('Elixir\HTTP\ServerRequestInterface', $request, ['aliases' => 'request']);
         }
-        
+
         $event = new HTTPKernelEvent(HTTPKernelEvent::REQUEST, ['request' => $request]);
         $this->dispatch($event);
-        
+
         $request = $event->getRequest();
         $response = $event->getResponse();
-        
+
         $pipeline = new Pipeline($this->middlewares);
         $response = $pipeline->process($request, $response);
-        
-        if (is_string($response))
-        {
+
+        if (is_string($response)) {
             $response = ResponseFactory::createHTML($response, 200);
         }
-        
+
         $event = new HTTPKernelEvent(HTTPKernelEvent::RESPONSE, ['response' => $response]);
         $this->dispatch($event);
-        
+
         $response = $event->getResponse();
-        
-        if (null === $response)
-        {
+
+        if (null === $response) {
             throw new \LogicException('No response found.');
         }
-        
+
         return $response;
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function isFreshCache()
     {
-        if (!isset($this->cacheData['classes']) || !isset($this->cacheData['files']))
-        {
+        if (!isset($this->cacheData['classes']) || !isset($this->cacheData['files'])) {
             return false;
         }
-        
-        return count(array_diff_assoc($this->cacheData['classes'], $this->classesLoaded)) === 0 && 
+
+        return count(array_diff_assoc($this->cacheData['classes'], $this->classesLoaded)) === 0 &&
                count(array_diff_assoc($this->cacheData['files'], $this->filesLoaded)) === 0;
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function exportToCache()
     {
-        if (null !== $this->cache && !$this->isFreshCache())
-        {
+        if (null !== $this->cache && !$this->isFreshCache()) {
             $this->cache[$this->cacheKey] = [
                 'classes' => $this->classesLoaded,
                 'files' => $this->filesLoaded,
-                'version' => $this->cacheVersion
+                'version' => $this->cacheVersion,
             ];
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function invalidateCache()
     {
-        if (null !== $this->cache)
-        {
+        if (null !== $this->cache) {
             unset($this->cache[$this->cacheKey]);
-            
+
             $this->cacheLoaded = false;
             $this->cacheData = [];
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -601,11 +555,9 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
     {
         $this->dispatch(new HTTPKernelEvent(HTTPKernelEvent::TERMINATE, ['request' => $request, 'response' => $response]));
         $middlewares = array_reverse($this->middlewares);
-        
-        foreach ($middlewares as $middleware)
-        {
-            if ($middleware instanceof TerminableInterface)
-            {
+
+        foreach ($middlewares as $middleware) {
+            if ($middleware instanceof TerminableInterface) {
                 $middleware->terminate($request, $response);
             }
         }

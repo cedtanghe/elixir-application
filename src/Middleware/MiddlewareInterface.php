@@ -8,12 +8,13 @@ use Elixir\HTTP\ServerRequestInterface;
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface MiddlewareInterface 
+interface MiddlewareInterface
 {
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface|null $response
-     * @param callable $next
+     * @param callable               $next
+     *
      * @return ResponseInterface
      */
     public function __invoke($request, $response, callable $next);

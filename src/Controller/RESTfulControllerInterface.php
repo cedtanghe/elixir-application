@@ -10,8 +10,9 @@ use Elixir\HTTP\ServerRequestInterface;
 interface RESTfulControllerInterface
 {
     /**
-     * @param string $method
+     * @param string                 $method
      * @param ServerRequestInterface $request
+     *
      * @return string
      */
     public function getRestFulMethodName($method, ServerRequestInterface $request);

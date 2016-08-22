@@ -10,10 +10,10 @@ use Elixir\HTTP\ServerRequestInterface;
 trait RESTfulControllerTrait
 {
     /**
-     * @var boolean
+     * @var bool
      */
     protected $strictMethod = false;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -22,10 +22,8 @@ trait RESTfulControllerTrait
         $requestMethod = $request->getMethod();
         $prefixs = [$requestMethod];
 
-        if (!$this->strictMethod)
-        {
-            switch ($requestMethod)
-            {
+        if (!$this->strictMethod) {
+            switch ($requestMethod) {
                 case 'HEAD':
                     $prefixs[] = 'GET';
                     break;
@@ -40,21 +38,18 @@ trait RESTfulControllerTrait
             }
         }
 
-        foreach ($prefixs as $prefix)
-        {
-            $m = strtolower($prefix) . ucfirst($method);
+        foreach ($prefixs as $prefix) {
+            $m = strtolower($prefix).ucfirst($method);
 
-            if (method_exists($this, $m))
-            {
+            if (method_exists($this, $m)) {
                 return $m;
             }
         }
-        
-        if (method_exists($this, $method))
-        {
+
+        if (method_exists($this, $method)) {
             return $method;
         }
-        
+
         return $method;
     }
 }

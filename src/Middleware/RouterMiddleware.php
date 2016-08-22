@@ -8,8 +8,6 @@ use Elixir\HTTP\ResponseInterface;
 use Elixir\HTTP\ServerRequestInterface;
 use Elixir\Kernel\LocatorAwareInterface;
 use Elixir\Kernel\LocatorInterface;
-use Elixir\Kernel\Middleware\MiddlewareInterface;
-use Elixir\Kernel\Middleware\TerminableInterface;
 use Elixir\MVC\Exception\NotFoundException;
 use Elixir\Routing\Route;
 
@@ -22,12 +20,12 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
      * @var ContainerInterface
      */
     protected $container;
-    
+
     /**
-     * @var array 
+     * @var array
      */
     protected $middlewares = [];
-    
+
     /**
      * {@inheritdoc}
      */
@@ -35,72 +33,61 @@ class RouterMiddleware implements MiddlewareInterface, ContainerAwareInterface, 
     {
         $this->container = $container;
     }
-    
+
     /**
      * {@inheritdoc}
+     *
      * @throws NotFoundException
      */
-    public function __invoke($request, $response, callable $next) 
+    public function __invoke($request, $response, callable $next)
     {
-        if ($request->isMainRequest())
-        {
+        if ($request->isMainRequest()) {
             $router = $this->container->get('Elixir\Routing\RouterInterface');
             $kernel = $this->container->get('kernel');
-            
+
             $routeMatch = $router->match(trim($request->getPathInfo(), '/'));
-            
-            if (null !== $routeMatch)
-            {
+
+            if (null !== $routeMatch) {
                 $request = $request->withAttributes(['route_name' => $routeMatch->getRouteName()] + $routeMatch->all() + $request->getAttributes());
 
-                if ($routeMatch->has(Route::MIDDLEWARES))
-                {
+                if ($routeMatch->has(Route::MIDDLEWARES)) {
                     $this->middlewares = $routeMatch->get(Route::MIDDLEWARES);
                     $kernelIsLocator = $kernel instanceof LocatorInterface;
 
-                    foreach ($this->middlewares as $middleware)
-                    {
-                        if ($middleware instanceof ContainerAwareInterface)
-                        {
+                    foreach ($this->middlewares as $middleware) {
+                        if ($middleware instanceof ContainerAwareInterface) {
                             $middleware->setContainer($this->container);
                         }
 
-                        if ($kernelIsLocator && $middleware instanceof LocatorAwareInterface)
-                        {
+                        if ($kernelIsLocator && $middleware instanceof LocatorAwareInterface) {
                             $middleware->setLocator($kernel);
                         }
                     }
 
                     $pipelineMiddleware = new PipelineMiddleware(new Pipeline($middlewares));
 
-                    return $pipelineMiddleware($request, $response, function($request, $response) use ($next)
-                    {
+                    return $pipelineMiddleware($request, $response, function ($request, $response) use ($next) {
                         return $next($request, $response);
                     });
                 }
-            }
-            else
-            {
+            } else {
                 throw new NotFoundException('No route found.');
             }
         }
-        
+
         return $next($request, $response);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function terminate(ServerRequestInterface $request, ResponseInterface $response)
     {
-        if ($request->isMainRequest() && count($this->middlewares) > 0)
-        {
+        if ($request->isMainRequest() && count($this->middlewares) > 0) {
             $middlewares = array_reverse($this->middlewares);
 
-            foreach ($middlewares as $middleware)
-            {
-                if ($middleware instanceof TerminableInterface)
-                {
+            foreach ($middlewares as $middleware) {
+                if ($middleware instanceof TerminableInterface) {
                     $middleware->terminate($request, $response);
                 }
             }

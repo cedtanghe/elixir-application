@@ -17,34 +17,33 @@ abstract class ModuleAbstract
      * @var ApplicationInterface
      */
     protected $application;
-    
+
     /**
-     * @var string 
+     * @var string
      */
     protected $name;
 
     /**
-     * @var string 
+     * @var string
      */
     protected $namespace;
 
     /**
-     * @var string 
+     * @var string
      */
     protected $path;
-    
+
     /**
-     * @var \ReflectionClass 
+     * @var \ReflectionClass
      */
     protected $rc;
 
     /**
      * {@inheritdoc}
      */
-    public function getName() 
+    public function getName()
     {
-        if (null === $this->name) 
-        {
+        if (null === $this->name) {
             $this->name = basename($this->getPath());
         }
 
@@ -54,7 +53,7 @@ abstract class ModuleAbstract
     /**
      * {@inheritdoc}
      */
-    public function getParent() 
+    public function getParent()
     {
         return null;
     }
@@ -62,15 +61,13 @@ abstract class ModuleAbstract
     /**
      * {@inheritdoc}
      */
-    public function getNamespace() 
+    public function getNamespace()
     {
-        if (null === $this->namespace)
-        {
-            if (null === $this->rc)
-            {
+        if (null === $this->namespace) {
+            if (null === $this->rc) {
                 $this->rc = new \ReflectionClass($this);
             }
-            
+
             $this->namespace = $this->rc->getNamespaceName();
         }
 
@@ -82,19 +79,17 @@ abstract class ModuleAbstract
      */
     public function getPath()
     {
-        if (null === $this->path)
-        {
-            if (null === $this->rc)
-            {
+        if (null === $this->path) {
+            if (null === $this->rc) {
                 $this->rc = new \ReflectionClass($this);
             }
-            
+
             $this->path = pathinfo($this->rc->getFileName(), PATHINFO_DIRNAME);
         }
-        
+
         return $this->path;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -102,7 +97,7 @@ abstract class ModuleAbstract
     {
         $this->application = $application;
     }
-    
+
     /**
      * @see ContainerInterface::addProvider()
      */
@@ -110,7 +105,7 @@ abstract class ModuleAbstract
     {
         $this->application->getContainer()->addProvider($provider);
     }
-    
+
     /**
      * @see DispatcherInterface::addSubscriber()
      */

@@ -9,13 +9,15 @@ interface LocatorInterface
 {
     /**
      * @param string $className
+     *
      * @return string|null
      */
     public function locateClass($className);
 
     /**
      * @param string $filePath
-     * @param boolean $single
+     * @param bool   $single
+     *
      * @return string|array|null
      */
     public function locateFile($filePath, $single = true);

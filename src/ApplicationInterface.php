@@ -3,7 +3,6 @@
 namespace Elixir\Kernel;
 
 use Elixir\DI\ContainerInterface;
-use Elixir\Kernel\LocatorInterface;
 use Elixir\Kernel\Module\ModuleInterface;
 
 /**
@@ -20,9 +19,10 @@ interface ApplicationInterface extends HTTPKernelInterface, LocatorInterface
      * @param ModuleInterface $module
      */
     public function register(ModuleInterface $module);
-    
+
     /**
      * @param string $name
+     *
      * @return ModuleInterface|null
      */
     public function getModule($name);
@@ -31,21 +31,19 @@ interface ApplicationInterface extends HTTPKernelInterface, LocatorInterface
      * @return array
      */
     public function getModules();
-    
+
     /**
      * @param string $name
-     * @param boolean $root
+     * @param bool   $root
+     *
      * @return array|null
      */
     public function getHierarchy($name, $root = false);
-    
+
     /**
-     * @return boolean
+     * @return bool
      */
     public function isBooted();
-    
-    /**
-     * @return void
-     */
+
     public function boot();
 }

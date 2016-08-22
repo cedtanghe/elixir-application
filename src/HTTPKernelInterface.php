@@ -16,21 +16,22 @@ interface HTTPKernelInterface extends DispatcherInterface
      * @param MiddlewareInterface $middleware
      */
     public function pipe(MiddlewareInterface $middleware);
-    
+
     /**
      * @return array
      */
     public function getMiddlewares();
-    
+
     /**
      * @param ServerRequestInterface $request
+     *
      * @return ResponseInterface
      */
     public function handle(ServerRequestInterface $request);
-    
+
     /**
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
+     * @param ResponseInterface      $response
      */
     public function terminate(ServerRequestInterface $request, ResponseInterface $response);
 }

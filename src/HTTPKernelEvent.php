@@ -10,74 +10,75 @@ use Elixir\Kernel\Middleware\MiddlewareInterface;
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-class HTTPKernelEvent extends Event 
+class HTTPKernelEvent extends Event
 {
     /**
      * @var string
      */
     const MIDDLEWARE = 'middleware';
-    
+
     /**
      * @var string
      */
     const REQUEST = 'request';
-    
+
     /**
      * @var string
      */
     const EXCEPTION = 'exception';
-    
+
     /**
      * @var string
      */
     const RESPONSE = 'response';
-    
+
     /**
      * @var string
      */
     const TERMINATE = 'terminate';
-    
+
     /**
      * @var MiddlewareInterface
      */
     protected $middleware;
-    
+
     /**
      * @var ServerRequestInterface
      */
     protected $request;
-    
+
     /**
      * @var \Exception
      */
     protected $exception;
-    
+
     /**
      * @var ResponseInterface
      */
     protected $response;
-    
+
     /**
      * {@inheritdoc}
+     *
      * @param array $params
      */
     public function __construct($type, array $params = [])
     {
         parent::__construct($type);
-        
+
         $params += [
             'middleware' => null,
             'request' => null,
             'exception' => null,
-            'response' => null
+            'response' => null,
         ];
-        
+
         $this->middleware = $params['middleware'];
         $this->request = $params['request'];
         $this->exception = $params['exception'];
         $this->response = $params['response'];
     }
-    
+
     /**
      * @return MiddlewareInterface
      */
@@ -85,7 +86,7 @@ class HTTPKernelEvent extends Event
     {
         return $this->middleware;
     }
-    
+
     /**
      * @return ServerRequestInterface
      */
@@ -93,7 +94,7 @@ class HTTPKernelEvent extends Event
     {
         return $this->request;
     }
-    
+
     /**
      * @return \Exception
      */
@@ -101,7 +102,7 @@ class HTTPKernelEvent extends Event
     {
         return $this->exception;
     }
-    
+
     /**
      * @param ServerRequestInterface $request
      */
@@ -109,7 +110,7 @@ class HTTPKernelEvent extends Event
     {
         $this->request = $request;
     }
-    
+
     /**
      * @return ResponseInterface
      */
@@ -117,7 +118,7 @@ class HTTPKernelEvent extends Event
     {
         return $this->response;
     }
-    
+
     /**
      * @param ResponseInterface $response
      */

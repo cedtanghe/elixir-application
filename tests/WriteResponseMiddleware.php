@@ -9,9 +9,10 @@ class WriteResponseMiddleware implements MiddlewareInterface
     /**
      * {@inheritdoc}
      */
-    public function __invoke($request, $response, callable $next) 
+    public function __invoke($request, $response, callable $next)
     {
         $response->getBody()->write('->write');
+
         return $next($request, $response);
     }
 }

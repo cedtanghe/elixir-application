@@ -2,12 +2,10 @@
 
 namespace Elixir\Kernel;
 
-use Elixir\Kernel\LocatorInterface;
-
 /**
  * @author Cédric Tanghe <ced.tanghe@gmail.com>
  */
-interface LocatorAwareInterface 
+interface LocatorAwareInterface
 {
     /**
      * @param LocatorInterface $locator
