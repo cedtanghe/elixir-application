@@ -183,7 +183,7 @@ class Application implements ApplicationInterface, CacheableInterface, \ArrayAcc
         if ($middleware instanceof LocatorAwareInterface) {
             $middleware->setLocator($this);
         }
-
+        
         $this->middlewares[] = $middleware;
         $this->dispatch(new HTTPKernelEvent(HTTPKernelEvent::MIDDLEWARE, ['middleware' => $middleware]));
     }
